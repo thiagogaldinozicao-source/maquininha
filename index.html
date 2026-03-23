@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Maquininha">
+<title>Simulação Maquininha</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root { --am: #FFE566; --am2: #111; --verde: #25D366; --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a; }
+
+body { background: var(--bg); color: #f0f0f0; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+
+header { background: var(--bg2); border-bottom: 3px solid var(--am); padding: 14px 16px 12px; position: sticky; top: 0; z-index: 100; }
+header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--am); }
+header p { font-size: 11px; color: #666; margin-top: 1px; }
+
+.inputs { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--am); margin-bottom: 5px; }
+.input-group input, .input-group textarea { background: var(--bg3); border: 2px solid #333; border-radius: 10px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 11px 14px; width: 100%; outline: none; transition: border-color 0.2s; }
+.input-group input:focus, .input-group textarea:focus { border-color: var(--am); }
+.input-group input::placeholder, .input-group textarea::placeholder { color: #444; font-weight: 400; }
+.input-group textarea { resize: none; font-size: 13px; line-height: 1.5; }
+
+
+/* CARD */
+#card-captura { margin: 14px auto; background: var(--bg2); border-radius: 14px; overflow: hidden; border: 2px solid var(--am); max-width: 380px; display: none; }
+.card-header { background: var(--am); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.card-header-info { flex: 1; }
+.card-produto { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: #111; letter-spacing: 0.5px; line-height: 1; }
+.card-subtitulo { font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-faixa { background: var(--bg3); padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #222; border-bottom: 1px solid #222; }
+.card-faixa-txt { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-faixa-txt span { color: var(--am); }
+.card-faixa-badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--bg3); }
+thead th { color: var(--am); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 7px 8px; text-align: center; border-bottom: 2px solid var(--am); }
+thead th:first-child { text-align: left; padding-left: 14px; }
+tbody tr { border-bottom: 1px solid #1e1e1e; }
+tbody tr:nth-child(odd) { background: #141414; }
+tbody tr:nth-child(even) { background: var(--bg2); }
+tbody td { padding: 7px 8px; text-align: center; font-size: 12px; }
+tbody td:first-child { text-align: left; padding-left: 14px; font-family: monospace; font-size: 13px; color: var(--am); font-weight: 700; }
+.td-parc { color: #fff; font-weight: 600; }
+.td-total { color: var(--am); font-weight: 700; }
+.td-juros { color: #e74c3c; font-size: 11px; }
+
+.card-rodape { background: var(--bg3); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 2px solid #222; }
+.card-rodape-txt { font-size: 11px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-rodape-badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+
+.btns { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; margin-top: 14px; display: none; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 15px; width: 100%; cursor: pointer; transition: all 0.2s; }
+.btn:active { transform: scale(0.97); }
+.btn-txt { background: var(--verde); color: #fff; }
+.btn-txt:active { background: #1da851; }
+.btn-limpar { background: #222; color: #888; font-size: 16px; padding: 10px; }
+.btn-limpar:active { background: #333; }
+
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--am); color: #111; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 50px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 480px) { body { max-width: 480px; margin: 0 auto; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <h1>💳 Simulação Maquininha</h1>
+      <p>Digite o valor → copie direto pro WhatsApp</p>
+    </div>
+    <button onclick="copiarTexto()" style="background:#1a1a1a;border:1.5px solid #25D366;border-radius:10px;width:42px;height:42px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;">💬</button>
+  </div>
+</header>
+
+<div class="inputs">
+  <div class="input-group">
+    <label>📱 Nome do Produto <span style="color:#555;font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">— ou digite uma conta: 2000 - 500</span></label>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="produto" placeholder="Ex: iPhone 16 ou 2000 - 500" style="text-transform:uppercase;flex:1;" oninput="detectarCalculo()">
+      <button onclick="document.getElementById('produto').value='';detectarCalculo();calcular();" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:0 14px;cursor:pointer;">🗑</button>
+    </div>
+    <div id="calc-preview" style="display:none;margin-top:6px;background:#1a1a1a;border-radius:8px;padding:8px 12px;display:none;align-items:center;justify-content:space-between;gap:8px;">
+      <span style="font-size:13px;color:#aaa;">🧮 Resultado: <span id="calc-resultado" style="color:#FFE566;font-weight:700;font-size:15px;"></span></span>
+      <button onclick="aplicarCalculo()" style="background:#FFE566;color:#111;border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:6px 12px;cursor:pointer;">✅ USAR VALOR</button>
+    </div>
+  </div>
+  <div class="input-group">
+    <label>💰 Valor que você quer receber (R$)</label>
+    <div style="display:flex;gap:8px;">
+      <input type="number" id="valor" placeholder="Ex: 1000" inputmode="decimal" style="flex:1;">
+      <button onclick="limpar()" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:0 14px;cursor:pointer;white-space:nowrap;">🗑</button>
+    </div>
+  </div>
+  <div class="input-group">
+    <label>✏️ Rodapé da mensagem (editável)</label>
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <textarea id="rodape" rows="2" placeholder="Ex: 📞 (11) 99999-9999 | @seuinstagram" style="flex:1;">📦 Entrega ou retirada combinada
+📲 Me chame para fechar negócio!</textarea>
+      <button onclick="document.getElementById('rodape').value='';" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:10px 14px;cursor:pointer;">🗑</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- CARD TABELA -->
+<div id="card-captura">
+  <div class="card-header">
+    <div class="card-header-info">
+      <div class="card-subtitulo">📱 Produto</div>
+      <div class="card-produto" id="card-nome">PRODUTO</div>
+    </div>
+    <div style="font-size:24px;">💳</div>
+  </div>
+  <div class="card-faixa">
+    <span class="card-faixa-txt">💰 Parcelando <span id="card-valor">R$ 0,00</span></span>
+    <span class="card-faixa-badge">18x disponível</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Parc.</th>
+        <th>Valor/Parc.</th>
+        <th>Total</th>
+        <th style="color:#aaa;font-size:10px;">Taxa</th>
+        <th>Juros</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-body"></tbody>
+  </table>
+  <div class="card-rodape">
+    <span class="card-rodape-txt">📲 Fale para fechar negócio</span>
+    <span class="card-rodape-badge">🏆 Melhor taxa</span>
+  </div>
+</div>
+
+<div class="btns" id="btns">
+  <button class="btn btn-txt" onclick="copiarTexto()">📋 COPIAR TEXTO PARA WHATSAPP</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const taxas = [
+  [1,4.99],[2,5.83],[3,6.48],[4,7.12],[5,7.76],
+  [6,8.39],[7,9.21],[8,9.83],[9,10.44],[10,11.05],
+  [11,11.65],[12,12.25],[13,13.64],[14,14.23],[15,14.81],
+  [16,15.39],[17,15.96],[18,16.53]
+];
+
+function fmt(n) {
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calcular() {
+  const valor = parseFloat(document.getElementById('valor').value) || 0;
+  const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
+  const card = document.getElementById('card-captura');
+  const btns = document.getElementById('btns');
+  card.style.display = valor > 0 ? 'block' : 'none';
+  btns.style.display = valor > 0 ? 'flex' : 'none';
+  document.getElementById('card-nome').textContent = produto;
+  document.getElementById('card-valor').textContent = 'R$ ' + fmt(valor);
+  const tbody = document.getElementById('tabela-body');
+  tbody.innerHTML = '';
+  taxas.forEach(([parc, taxa]) => {
+    const taxaDec = taxa / 100;
+    const totalCobrar = valor / (1 - taxaDec);
+    const valorParc = totalCobrar / parc;
+    const juros = totalCobrar - valor;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${parc}x</td>
+      <td class="td-parc">R$ ${fmt(valorParc)}</td>
+      <td class="td-total">R$ ${fmt(totalCobrar)}</td>
+      <td style="color:#aaa;font-size:11px;">${taxa}%</td>
+      <td class="td-juros">+R$ ${fmt(juros)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  // Salvar último valor
+  localStorage.setItem('ult_valor', document.getElementById('valor').value);
+  localStorage.setItem('ult_produto', document.getElementById('produto').value);
+}
+
+function copiarTexto() {
+  const valor = parseFloat(document.getElementById('valor').value) || 0;
+  const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
+  const rodape = document.getElementById('rodape').value.trim();
+  let linhas = [];
+  taxas.forEach(([parc, taxa]) => {
+    const totalCobrar = valor / (1 - taxa / 100);
+    const valorParc = totalCobrar / parc;
+    const vStr = fmt(valorParc).padStart(10, ' ');
+    const tStr = fmt(totalCobrar).padStart(10, ' ');
+    const pStr = String(parc).padStart(2, '0');
+    linhas.push(`${pStr}x R$${vStr} | R$${tStr}`);
+  });
+  const msg =
+    `📱 *${produto}* 🤩\n\n` +
+    `💰 *Valor parcelado: R$ ${fmt(valor)}*\n\n` +
+    `💳 *Opções no Cartão:*\n` +
+    `\`\`\`\n` +
+    `Px. R$     Valor | R$     Total\n` +
+    `--------------------------------\n` +
+    linhas.join('\n') + `\n` +
+    `\`\`\`` +
+    `\n\n${rodape}`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(msg).then(() => mostrarToast('✅ Copiado! Cole no WhatsApp'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = msg; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    mostrarToast('✅ Copiado! Cole no WhatsApp');
+  }
+}
+
+function limpar() {
+  document.getElementById('valor').value = '';
+  document.getElementById('produto').value = '';
+  document.getElementById('card-captura').style.display = 'none';
+  document.getElementById('btns').style.display = 'none';
+  document.getElementById('valor').focus();
+  mostrarToast('🗑 Limpo!');
+}
+
+function mostrarToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function detectarCalculo() {
+  const input = document.getElementById('produto').value.trim();
+  const preview = document.getElementById('calc-preview');
+  const resultado = document.getElementById('calc-resultado');
+  // Detecta se parece uma conta: contém número e operador
+  const ehConta = /^[\d\s\+\-\*\/\.\,x÷]+$/.test(input) && /[\+\-\*\/x÷]/.test(input);
+  if (!ehConta || !input) {
+    preview.style.display = 'none';
+    calcular();
+    return;
+  }
+  try {
+    // Normalizar: trocar x por *, ÷ por /, vírgula por ponto
+    const expr = input.replace(/x/gi,'*').replace(/÷/g,'/').replace(/,/g,'.');
+    const val = Function('"use strict"; return (' + expr + ')')();
+    if (isFinite(val) && val >= 0) {
+      resultado.textContent = 'R$ ' + fmt(val);
+      preview.style.display = 'flex';
+      preview.dataset.val = val;
+    } else {
+      preview.style.display = 'none';
+    }
+  } catch(e) {
+    preview.style.display = 'none';
+  }
+}
+
+function aplicarCalculo() {
+  const preview = document.getElementById('calc-preview');
+  const val = parseFloat(preview.dataset.val);
+  if (val > 0) {
+    document.getElementById('valor').value = val.toFixed(2);
+    document.getElementById('produto').value = '';
+    preview.style.display = 'none';
+    calcular();
+  }
+}
+
+document.getElementById('valor').addEventListener('input', calcular);
+document.getElementById('produto').addEventListener('input', calcular);
+
+// Restaurar último valor salvo
+const ultValor = localStorage.getItem('ult_valor');
+const ultProduto = localStorage.getItem('ult_produto');
+if (ultValor) { document.getElementById('valor').value = ultValor; }
+if (ultProduto) { document.getElementById('produto').value = ultProduto; }
+calcular();
+</script>
+</body>
+</html>
