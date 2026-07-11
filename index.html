@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -7,89 +6,84 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Maquininha">
-<title>Simulação Maquininha</title>
-<link rel="icon" type="image/png" href="data:image/png;base64,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">
-<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <meta name="theme-color" content="#111111">
-<meta name="color-scheme" content="dark">
+<title>Simulação Maquininha</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23111'/><rect x='18' y='28' width='64' height='44' rx='6' fill='%23FFE566'/><rect x='18' y='38' width='64' height='12' fill='%23111'/><rect x='26' y='58' width='10' height='7' rx='2' fill='%23111'/><rect x='41' y='58' width='10' height='7' rx='2' fill='%23111'/><rect x='56' y='58' width='10' height='7' rx='2' fill='%23111'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23111'/><rect x='90' y='140' width='332' height='232' rx='28' fill='%23FFE566'/><rect x='90' y='196' width='332' height='64' fill='%23111'/><rect x='126' y='298' width='56' height='38' rx='8' fill='%23111'/><rect x='214' y='298' width='56' height='38' rx='8' fill='%23111'/><rect x='302' y='298' width='56' height='38' rx='8' fill='%23111'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { }
 
-:root { –am: #FFE566; –am2: #111; –verde: #25D366; –bg: #0a0a0a; –bg2: #111; –bg3: #1a1a1a; }
+:root { --am: #FFE566; --am2: #111; --verde: #25D366; --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a; }
 
-body { background: var(–bg); color: #f0f0f0; font-family: ‘DM Sans’, sans-serif; min-height: 100vh; padding-bottom: 60px; }
+body { background: var(--bg) !important; color: #f0f0f0 !important; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding-bottom: 60px; }
 
-header { background: var(–bg2); border-bottom: 3px solid var(–am); padding: 14px 16px 12px; position: sticky; top: 0; z-index: 100; }
-header h1 { font-family: ‘Bebas Neue’, sans-serif; font-size: 22px; letter-spacing: 2px; color: var(–am); }
+header { background: var(--bg2) !important; border-bottom: 3px solid var(--am); transition: border-color 0.3s; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 100; }
+header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--am); }
 header p { font-size: 11px; color: #666; margin-top: 1px; }
 
+/* ABAS */
+.abas { display: flex; margin: 12px 16px 0; gap: 0; border-radius: 12px; overflow: hidden; border: 2px solid #333; }
+.aba { flex: 1; padding: 10px 0; text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1.5px; cursor: pointer; background: #1a1a1a; color: #555; border: none; transition: all 0.2s; }
+.aba.ativa { background: var(--am); color: #111; }
+.btn-txt, .card-faixa-badge, .card-rodape-badge { transition: background 0.3s; }
+
 .inputs { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
-.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(–am); margin-bottom: 5px; }
-.input-group input, .input-group textarea { background: var(–bg3); border: 2px solid #333; border-radius: 10px; color: #fff; font-family: ‘DM Sans’, sans-serif; font-size: 15px; font-weight: 600; padding: 11px 14px; width: 100%; outline: none; transition: border-color 0.2s; }
-.input-group input:focus, .input-group textarea:focus { border-color: var(–am); }
+.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--am); margin-bottom: 5px; }
+.input-group input, .input-group textarea { background: var(--bg3) !important; border: 2px solid #333; border-radius: 10px; color: #fff !important; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 11px 14px; width: 100%; outline: none; transition: border-color 0.2s; }
+.input-group input:focus, .input-group textarea:focus { border-color: var(--am); }
 .input-group input::placeholder, .input-group textarea::placeholder { color: #444; font-weight: 400; }
 .input-group textarea { resize: none; font-size: 13px; line-height: 1.5; }
 
-/* CARD */
-#card-captura { margin: 14px auto; background: var(–bg2); border-radius: 14px; overflow: hidden; border: 2px solid var(–am); max-width: 380px; display: none; }
-.card-header { background: var(–am); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+#card-captura { margin: 14px auto; background: var(--bg2) !important; border-radius: 14px; overflow: hidden; border: 2px solid var(--am); max-width: 380px; display: none; }
+.card-header { background: var(--am); transition: background 0.3s; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
 .card-header-info { flex: 1; }
-.card-produto { font-family: ‘Bebas Neue’, sans-serif; font-size: 17px; color: #111; letter-spacing: 0.5px; line-height: 1; }
+.card-produto { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: #111; letter-spacing: 0.5px; line-height: 1; }
 .card-subtitulo { font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.card-faixa { background: var(–bg3); padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #222; border-bottom: 1px solid #222; }
+.card-faixa { background: var(--bg3) !important; padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #222; border-bottom: 1px solid #222; }
 .card-faixa-txt { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.card-faixa-txt span { color: var(–am); }
-.card-faixa-badge { background: var(–am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.card-faixa-txt span { color: var(--am); }
+.card-faixa-badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
 
 table { width: 100%; border-collapse: collapse; }
-thead tr { background: var(–bg3); }
-thead th { color: var(–am); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 7px 8px; text-align: center; border-bottom: 2px solid var(–am); }
+thead tr { background: var(--bg3) !important; }
+thead th { color: var(--am); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 7px 8px; text-align: center; border-bottom: 2px solid var(--am); }
 thead th:first-child { text-align: left; padding-left: 14px; }
 tbody tr { border-bottom: 1px solid #1e1e1e; }
-tbody tr:nth-child(odd) { background: #141414; }
-tbody tr:nth-child(even) { background: var(–bg2); }
-tbody td { padding: 7px 8px; text-align: center; font-size: 12px; }
-tbody td:first-child { text-align: left; padding-left: 14px; font-family: monospace; font-size: 13px; color: var(–am); font-weight: 700; }
-.td-parc { color: #fff; font-weight: 600; }
-.td-total { color: var(–am); font-weight: 700; }
-.td-juros { color: #e74c3c; font-size: 11px; }
+tbody tr:nth-child(odd) { background: #141414 !important; }
+tbody tr:nth-child(even) { background: #111111 !important; }
+tbody td { padding: 7px 8px; text-align: center; font-size: 12px; color: #f0f0f0; }
+tbody td:first-child { text-align: left; padding-left: 14px; font-family: monospace; font-size: 13px; color: var(--am); font-weight: 700; }
+.td-parc { color: #fff !important; font-weight: 600; }
+.td-total { color: var(--am) !important; font-weight: 700; }
+.td-juros { color: #e74c3c !important; font-size: 11px; }
 
-.card-rodape { background: var(–bg3); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 2px solid #222; }
+.card-rodape { background: var(--bg3) !important; padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 2px solid #222; }
 .card-rodape-txt { font-size: 11px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.card-rodape-badge { background: var(–am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.card-rodape-badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
 
 .btns { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; margin-top: 14px; display: none; }
-.btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 12px; font-family: ‘Bebas Neue’, sans-serif; font-size: 20px; letter-spacing: 2px; padding: 15px; width: 100%; cursor: pointer; transition: all 0.2s; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 15px; width: 100%; cursor: pointer; transition: all 0.2s; }
 .btn:active { transform: scale(0.97); }
-.btn-txt { background: var(–verde); color: #fff; }
+.btn-txt { background: var(--verde); color: #fff; }
 .btn-txt:active { background: #1da851; }
 .btn-insta { background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #fff; }
 .btn-insta:active { filter: brightness(0.88); }
 .btn-limpar { background: #222; color: #888; font-size: 16px; padding: 10px; }
 .btn-limpar:active { background: #333; }
 
-.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(–am); color: #111; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 50px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--am); color: #111; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 50px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-@media (min-width: 480px) { body { max-width: 480px; margin: 0 auto; } }
-
-#splash {
-position: fixed !important; inset: 0 !important; background: #111111 !important; z-index: 9999 !important;
-display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-transition: opacity 0.5s ease;
-}
+/* SPLASH */
+#splash { position: fixed !important; inset: 0 !important; background: #111111 !important; z-index: 9999 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
 #splash.hide { opacity: 0; pointer-events: none; }
-.splash-card {
-background: #FFE566; border-radius: 28px; width: 140px; height: 96px;
-position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(255,229,102,0.3);
-}
+.splash-card { background: #FFE566; border-radius: 28px; width: 140px; height: 96px; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(255,229,102,0.3); }
 .splash-stripe { position: absolute; top: 28px; left: 0; right: 0; height: 22px; background: #111; }
 .splash-chip { position: absolute; top: 8px; left: 16px; width: 26px; height: 20px; background: #c8b450; border-radius: 4px; }
 .splash-btns { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
 .splash-btn { width: 18px; height: 12px; background: #111; border-radius: 3px; }
-.splash-title { font-family: ‘Bebas Neue’, sans-serif; font-size: 32px; letter-spacing: 3px; color: #FFE566; }
+.splash-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: #FFE566; }
 .splash-sub { font-size: 12px; color: #555; letter-spacing: 1px; text-transform: uppercase; }
 .splash-dot { width: 6px; height: 6px; background: #FFE566; border-radius: 50%; animation: pulse 1s infinite; }
 .splash-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -97,18 +91,12 @@ position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(255,229,102,0.
 @keyframes pulse { 0%,100%{opacity:0.2} 50%{opacity:1} }
 .splash-dots { display: flex; gap: 8px; }
 
-/* FORÇAR MODO ESCURO EM TODOS BROWSERS */
-html, body { background: #0a0a0a !important; color: #f0f0f0 !important; }
-input, textarea, select { background: #1a1a1a !important; color: #fff !important; border-color: #333 !important; }
-table { background: transparent !important; }
-tbody tr:nth-child(odd) { background: #141414 !important; }
-tbody tr:nth-child(even) { background: #111111 !important; }
-thead tr { background: #1a1a1a !important; }
-
+@media (min-width: 480px) { body { max-width: 480px; margin: 0 auto; } }
 </style>
 </head>
 <body>
-<div id="splash" style="background:#111111 !important;position:fixed;inset:0;z-index:9999;">
+
+<div id="splash" style="background:#111111 !important;">
   <div class="splash-card">
     <div class="splash-chip"></div>
     <div class="splash-stripe"></div>
@@ -134,11 +122,21 @@ thead tr { background: #1a1a1a !important; }
       <p>Digite o valor → copie direto pro WhatsApp</p>
     </div>
     <div style="display:flex;gap:8px;">
-      <button onclick="copiarTexto()" style="background:#25D366;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button>
-      <button onclick="copiarInsta()" style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></button>
+      <button onclick="copiarTexto()" style="background:#25D366;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </button>
+      <button onclick="copiarInsta()" style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </button>
     </div>
   </div>
 </header>
+
+<!-- ABAS -->
+<div class="abas">
+  <button class="aba ativa" id="aba-pagbank" onclick="trocarMaquina('pagbank')">🏦 PagBank</button>
+  <button class="aba" id="aba-picpay" onclick="trocarMaquina('picpay')">💚 PicPay</button>
+</div>
 
 <div class="inputs">
   <div class="input-group">
@@ -147,7 +145,7 @@ thead tr { background: #1a1a1a !important; }
       <input type="text" id="produto" placeholder="Ex: iPhone 16 ou 2000 - 500" style="text-transform:uppercase;flex:1;" oninput="detectarCalculo()">
       <button onclick="document.getElementById('produto').value='';detectarCalculo();calcular();" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:0 14px;cursor:pointer;">🗑</button>
     </div>
-    <div id="calc-preview" style="display:none;margin-top:6px;background:#1a1a1a;border-radius:8px;padding:8px 12px;display:none;align-items:center;justify-content:space-between;gap:8px;">
+    <div id="calc-preview" style="display:none;margin-top:6px;background:#1a1a1a;border-radius:8px;padding:8px 12px;align-items:center;justify-content:space-between;gap:8px;">
       <span style="font-size:13px;color:#aaa;">🧮 Resultado: <span id="calc-resultado" style="color:#FFE566;font-weight:700;font-size:15px;"></span></span>
       <button onclick="aplicarCalculo()" style="background:#FFE566;color:#111;border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:6px 12px;cursor:pointer;">✅ USAR VALOR</button>
     </div>
@@ -169,8 +167,6 @@ thead tr { background: #1a1a1a !important; }
   </div>
 </div>
 
-<!-- CARD TABELA -->
-
 <div id="card-captura">
   <div class="card-header">
     <div class="card-header-info">
@@ -181,7 +177,7 @@ thead tr { background: #1a1a1a !important; }
   </div>
   <div class="card-faixa">
     <span class="card-faixa-txt">💰 Parcelando <span id="card-valor">R$ 0,00</span></span>
-    <span class="card-faixa-badge">18x disponível</span>
+    <span class="card-faixa-badge" id="card-maquina-badge">PagBank</span>
   </div>
   <table>
     <thead>
@@ -209,12 +205,46 @@ thead tr { background: #1a1a1a !important; }
 <div class="toast" id="toast"></div>
 
 <script>
-const taxas = [
-  [1,4.99],[2,5.83],[3,6.48],[4,7.12],[5,7.76],
-  [6,8.39],[7,9.21],[8,9.83],[9,10.44],[10,11.05],
-  [11,11.65],[12,12.25],[13,13.64],[14,14.23],[15,14.81],
-  [16,15.39],[17,15.96],[18,16.53]
-];
+const maquinas = {
+  pagbank: {
+    nome: 'PagBank',
+    cor: '#FFE566',
+    corEscura: '#c8b450',
+    taxas: [
+      [1,4.99],[2,5.83],[3,6.48],[4,7.12],[5,7.76],
+      [6,8.39],[7,9.21],[8,9.83],[9,10.44],[10,11.05],
+      [11,11.65],[12,12.25],[13,13.64],[14,14.23],[15,14.81],
+      [16,15.39],[17,15.96],[18,16.53]
+    ]
+  },
+  picpay: {
+    nome: 'PicPay',
+    cor: '#21C25E',
+    corEscura: '#189449',
+    taxas: [
+      [1,5.34],[2,6.22],[3,6.97],[4,7.69],[5,8.40],
+      [6,9.11],[7,9.80],[8,10.50],[9,11.21],[10,11.92],
+      [11,12.64],[12,13.37],[13,14.12],[14,14.87],[15,15.62],
+      [16,16.38],[17,17.15],[18,17.93]
+    ]
+  }
+};
+
+let maquinaAtual = 'pagbank';
+let taxas = maquinas.pagbank.taxas;
+
+function trocarMaquina(qual) {
+  maquinaAtual = qual;
+  taxas = maquinas[qual].taxas;
+  document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+  document.getElementById('aba-' + qual).classList.add('ativa');
+  document.getElementById('card-maquina-badge').textContent = maquinas[qual].nome;
+  // Troca o tema
+  document.documentElement.style.setProperty('--am', maquinas[qual].cor);
+  document.querySelector('.splash-chip')?.style.setProperty('background', maquinas[qual].corEscura);
+  localStorage.setItem('ult_maquina', qual);
+  calcular();
+}
 
 function fmt(n) {
   return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -246,7 +276,6 @@ function calcular() {
     `;
     tbody.appendChild(tr);
   });
-  // Salvar último valor
   localStorage.setItem('ult_valor', document.getElementById('valor').value);
   localStorage.setItem('ult_produto', document.getElementById('produto').value);
 }
@@ -255,6 +284,7 @@ function copiarTexto() {
   const valor = parseFloat(document.getElementById('valor').value) || 0;
   const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
   const rodape = document.getElementById('rodape').value.trim();
+  const nomeMaq = maquinas[maquinaAtual].nome;
   let linhas = [];
   taxas.forEach(([parc, taxa]) => {
     const totalCobrar = valor / (1 - taxa / 100);
@@ -266,7 +296,8 @@ function copiarTexto() {
   });
   const msg =
     `📱 *${produto}* 🤩\n\n` +
-    `💰 *Valor parcelado: R$ ${fmt(valor)}*\n\n` +
+    `💰 *Valor parcelado: R$ ${fmt(valor)}*\n` +
+    `🏦 *${nomeMaq}*\n\n` +
     `💳 *Opções no Cartão:*\n` +
     `\`\`\`\n` +
     `Px. R$     Valor | R$     Total\n` +
@@ -289,7 +320,7 @@ function copiarInsta() {
   const valor = parseFloat(document.getElementById('valor').value) || 0;
   const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
   const rodape = document.getElementById('rodape').value.trim();
-  // Formato sem colunas — funciona perfeitamente em qualquer fonte proporcional
+  const nomeMaq = maquinas[maquinaAtual].nome;
   let linhas = [];
   taxas.forEach(([parc, taxa]) => {
     const totalCobrar = valor / (1 - taxa / 100);
@@ -299,7 +330,7 @@ function copiarInsta() {
   });
   const msg =
     `📱 ${produto}\n` +
-    `💰 R$ ${fmt(valor)} no cartão\n` +
+    `💰 R$ ${fmt(valor)} no cartão — ${nomeMaq}\n` +
     `━━━━━━━━━━━━━━━\n` +
     linhas.join('\n') + '\n' +
     `━━━━━━━━━━━━━━━\n` +
@@ -335,7 +366,6 @@ function detectarCalculo() {
   const input = document.getElementById('produto').value.trim();
   const preview = document.getElementById('calc-preview');
   const resultado = document.getElementById('calc-resultado');
-  // Detecta se parece uma conta: contém número e operador
   const ehConta = /^[\d\s\+\-\*\/\.\,x÷]+$/.test(input) && /[\+\-\*\/x÷]/.test(input);
   if (!ehConta || !input) {
     preview.style.display = 'none';
@@ -343,7 +373,6 @@ function detectarCalculo() {
     return;
   }
   try {
-    // Normalizar: trocar x por *, ÷ por /, vírgula por ponto
     const expr = input.replace(/x/gi,'*').replace(/÷/g,'/').replace(/,/g,'.');
     const val = Function('"use strict"; return (' + expr + ')')();
     if (isFinite(val) && val >= 0) {
@@ -369,24 +398,22 @@ function aplicarCalculo() {
   }
 }
 
+// Splash
+setTimeout(() => {
+  const splash = document.getElementById('splash');
+  splash.classList.add('hide');
+  setTimeout(() => splash.remove(), 500);
+}, 1800);
 
-  // Splash screen
-  setTimeout(() => {
-    const splash = document.getElementById('splash');
-    splash.classList.add('hide');
-    setTimeout(() => splash.remove(), 500);
-  }, 1800);
-
-  document.getElementById('valor').addEventListener('input', calcular);
+document.getElementById('valor').addEventListener('input', calcular);
 document.getElementById('produto').addEventListener('input', calcular);
 
-// Restaurar último valor salvo
 const ultValor = localStorage.getItem('ult_valor');
 const ultProduto = localStorage.getItem('ult_produto');
+const ultMaquina = localStorage.getItem('ult_maquina');
 if (ultValor) { document.getElementById('valor').value = ultValor; }
 if (ultProduto) { document.getElementById('produto').value = ultProduto; }
-calcular();
+if (ultMaquina && maquinas[ultMaquina]) { trocarMaquina(ultMaquina); } else { calcular(); }
 </script>
-
 </body>
 </html>
