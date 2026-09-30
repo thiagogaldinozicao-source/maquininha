@@ -2,95 +2,93 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Maquininha">
+<meta name="apple-mobile-web-app-title" content="Zicão Store">
 <meta name="theme-color" content="#111111">
-<title>Simulação Maquininha</title>
+<title>Zicão Store · Simulador de Compras</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root { --am: #FFE566; --verde: #25D366; --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a;
+  box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--bg); }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); background: #0a0a0a; }
+body { background: var(--bg); color: #f0f0f0; font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; padding-bottom: 60px; }
 
-:root { --am: #FFE566; --am2: #111; --verde: #25D366; --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a; }
+header { background: var(--bg2); border-bottom: 3px solid var(--am); transition: border-color 0.3s; padding: 14px 16px 12px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 100; }
+header h1 { font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif; font-size: 26px; letter-spacing: 2px; color: var(--am); line-height: 1; }
+header p { font-size: 11px; color: #777; margin-top: 3px; }
 
-body { background: var(--bg) !important; color: #f0f0f0 !important; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding-bottom: 60px; }
-
-header { background: var(--bg2) !important; border-bottom: 3px solid var(--am); transition: border-color 0.3s; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 100; }
-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--am); }
-header p { font-size: 11px; color: #666; margin-top: 1px; }
-
-.abas { display: flex; margin: 12px 16px 0; gap: 0; border-radius: 12px; overflow: hidden; border: 2px solid #333; }
-.aba { flex: 1; padding: 10px 0; text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1.5px; cursor: pointer; background: #1a1a1a; color: #555; border: none; transition: all 0.2s; }
+.abas { display: flex; margin: 12px 16px 0; border-radius: 12px; overflow: hidden; border: 2px solid #333; }
+.aba { flex: 1; padding: 10px 0; text-align: center; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 17px; letter-spacing: 1.5px; cursor: pointer; background: #1a1a1a; color: #666; border: none; transition: all 0.2s; }
 .aba.ativa { background: var(--am); color: #111; }
-.btn-txt, .card-faixa-badge, .card-rodape-badge { transition: background 0.3s; }
 
 .inputs { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
 .input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--am); margin-bottom: 5px; }
-.input-group input, .input-group textarea { background: var(--bg3) !important; border: 2px solid #333; border-radius: 10px; color: #fff !important; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 11px 14px; width: 100%; outline: none; transition: border-color 0.2s; }
+.input-group input, .input-group textarea { background: var(--bg3); border: 2px solid #333; border-radius: 10px; color: #fff; font-family: inherit; font-size: 16px; font-weight: 600; padding: 11px 14px; width: 100%; outline: none; transition: border-color 0.2s; }
 .input-group input:focus, .input-group textarea:focus { border-color: var(--am); }
-.input-group input::placeholder, .input-group textarea::placeholder { color: #444; font-weight: 400; }
-.input-group textarea { resize: none; font-size: 13px; line-height: 1.5; }
+.input-group input::placeholder, .input-group textarea::placeholder { color: #555; font-weight: 400; }
+.input-group textarea { resize: none; font-size: 14px; line-height: 1.5; }
+.btn-lixo { background: #222; border: 2px solid #333; border-radius: 10px; color: #888; font-size: 18px; padding: 0 14px; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--am); outline-offset: 2px; }
 
-#card-captura { margin: 14px auto; background: var(--bg2) !important; border-radius: 14px; overflow: hidden; border: 2px solid var(--am); max-width: 380px; display: none; }
+#card-captura { margin: 14px 16px; background: var(--bg2); border-radius: 14px; overflow: hidden; border: 2px solid var(--am); display: none; }
+@media (min-width: 420px) { #card-captura { max-width: 380px; margin: 14px auto; } }
 .card-header { background: var(--am); transition: background 0.3s; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
-.card-header-info { flex: 1; }
-.card-produto { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: #111; letter-spacing: 0.5px; line-height: 1; }
-.card-subtitulo { font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.card-faixa { background: var(--bg3) !important; padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #222; border-bottom: 1px solid #222; }
+.card-header-info { flex: 1; min-width: 0; }
+.card-loja { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 13px; color: #111; letter-spacing: 1.5px; opacity: .7; }
+.card-produto { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 20px; color: #111; letter-spacing: 0.5px; line-height: 1; overflow-wrap: anywhere; }
+.card-faixa { background: var(--bg3); padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #222; border-bottom: 1px solid #222; gap: 8px; }
 .card-faixa-txt { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 .card-faixa-txt span { color: var(--am); }
-.card-faixa-badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; transition: background 0.3s; white-space: nowrap; }
 
+.tabela-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-thead tr { background: var(--bg3) !important; }
+thead tr { background: var(--bg3); }
 thead th { color: var(--am); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 7px 8px; text-align: center; border-bottom: 2px solid var(--am); }
 thead th:first-child { text-align: left; padding-left: 14px; }
 tbody tr { border-bottom: 1px solid #1e1e1e; }
-tbody tr:nth-child(odd) { background: #141414 !important; }
-tbody tr:nth-child(even) { background: #111111 !important; }
-tbody td { padding: 7px 8px; text-align: center; font-size: 12px; color: #f0f0f0; }
-tbody td:first-child { text-align: left; padding-left: 14px; font-family: monospace; font-size: 13px; color: var(--am); font-weight: 700; }
-.td-parc { color: #fff !important; font-weight: 600; }
-.td-total { color: var(--am) !important; font-weight: 700; }
-.td-juros { color: #e74c3c !important; font-size: 11px; }
+tbody tr:nth-child(odd) { background: #141414; }
+tbody tr:nth-child(even) { background: #111; }
+tbody td { padding: 7px 8px; text-align: center; font-size: 12px; color: #f0f0f0; white-space: nowrap; }
+tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: var(--am); font-weight: 700; }
+.td-parc { color: #fff; font-weight: 600; }
+.td-total { color: var(--am); font-weight: 700; }
+.td-taxa { color: #aaa; font-size: 11px; }
+.td-juros { color: #e74c3c; font-size: 11px; }
 
-.card-rodape { background: var(--bg3) !important; padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 2px solid #222; }
-.card-rodape-txt { font-size: 11px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.card-rodape-badge { background: var(--am); color: #111; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.card-rodape { background: var(--bg3); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 2px solid #222; gap: 8px; }
+.card-rodape-txt { font-size: 11px; color: #777; font-weight: 600; white-space: pre-line; }
 
-.btns { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; margin-top: 14px; display: none; }
-.btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; padding: 15px; width: 100%; cursor: pointer; transition: all 0.2s; }
+.btns { padding: 0 16px; flex-direction: column; gap: 10px; margin-top: 4px; display: none; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 12px; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 20px; letter-spacing: 2px; padding: 15px; width: 100%; cursor: pointer; transition: transform 0.15s; }
 .btn:active { transform: scale(0.97); }
 .btn-txt { background: var(--verde); color: #fff; }
-.btn-txt:active { background: #1da851; }
 .btn-insta { background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #fff; }
-.btn-insta:active { filter: brightness(0.88); }
 
-.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--am); color: #111; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 50px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
+.toast { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(80px); background: var(--am); color: #111; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 50px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-#splash { position: fixed !important; inset: 0 !important; background: #111111 !important; z-index: 9999 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
+#splash { position: fixed; inset: 0; background: #111; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; transition: opacity 0.5s ease; }
 #splash.hide { opacity: 0; pointer-events: none; }
-.splash-card { background: #FFE566; border-radius: 28px; width: 140px; height: 96px; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(255,229,102,0.3); }
-.splash-stripe { position: absolute; top: 28px; left: 0; right: 0; height: 22px; background: #111; }
+.splash-card { background: #FFE566; border-radius: 22px; width: 150px; height: 96px; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(255,229,102,0.3); }
+.splash-stripe { position: absolute; top: 30px; left: 0; right: 0; height: 22px; background: #111; }
 .splash-chip { position: absolute; top: 8px; left: 16px; width: 26px; height: 20px; background: #c8b450; border-radius: 4px; }
-.splash-btns { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
-.splash-btn { width: 18px; height: 12px; background: #111; border-radius: 3px; }
-.splash-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: #FFE566; }
-.splash-sub { font-size: 12px; color: #555; letter-spacing: 1px; text-transform: uppercase; }
+.splash-z { position: absolute; bottom: 8px; right: 14px; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 30px; color: #111; line-height: 1; }
+.splash-title { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 42px; letter-spacing: 4px; color: #FFE566; line-height: 1; }
+.splash-sub { font-size: 12px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+.splash-dots { display: flex; gap: 8px; }
 .splash-dot { width: 6px; height: 6px; background: #FFE566; border-radius: 50%; animation: pulse 1s infinite; }
 .splash-dot:nth-child(2) { animation-delay: 0.2s; }
 .splash-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes pulse { 0%,100%{opacity:0.2} 50%{opacity:1} }
-.splash-dots { display: flex; gap: 8px; }
+@media (prefers-reduced-motion: reduce) { .splash-dot { animation: none; opacity: .7; } }
 
 @media (min-width: 480px) { body { max-width: 480px; margin: 0 auto; } }
-
-/* Telas pequenas: esconde Taxa e Juros, deixa só Parc/Valor/Total */
 @media (max-width: 360px) {
-  thead th:nth-child(4), thead th:nth-child(5),
-  tbody td:nth-child(4), tbody td:nth-child(5) { display: none; }
+  thead th:nth-child(4), thead th:nth-child(5), tbody td:nth-child(4), tbody td:nth-child(5) { display: none; }
   tbody td, thead th { font-size: 13px; padding: 8px 6px; }
   tbody td:first-child { font-size: 14px; }
 }
@@ -98,36 +96,28 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: monosp
 </head>
 <body>
 
-<div id="splash" style="background:#111111 !important;">
+<div id="splash">
   <div class="splash-card">
     <div class="splash-chip"></div>
     <div class="splash-stripe"></div>
-    <div class="splash-btns">
-      <div class="splash-btn"></div>
-      <div class="splash-btn"></div>
-      <div class="splash-btn"></div>
-    </div>
+    <div class="splash-z">Z</div>
   </div>
-  <div class="splash-title">Maquininha</div>
-  <div class="splash-sub">Simulador de Taxas</div>
-  <div class="splash-dots">
-    <div class="splash-dot"></div>
-    <div class="splash-dot"></div>
-    <div class="splash-dot"></div>
-  </div>
+  <div class="splash-title">Zicão Store</div>
+  <div class="splash-sub">Simulador de Compras</div>
+  <div class="splash-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
 </div>
 
 <header>
-  <div style="display:flex;align-items:center;justify-content:space-between;">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
     <div>
-      <h1>💳 Simulação Maquininha</h1>
-      <p>Digite o valor → copie direto pro WhatsApp</p>
+      <h1>Zicão Store</h1>
+      <p>Simulador de compras no cartão · copie direto pro WhatsApp</p>
     </div>
     <div style="display:flex;gap:8px;">
-      <button onclick="copiarTexto()" style="background:#25D366;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+      <button onclick="copiarTexto()" aria-label="Copiar para WhatsApp" style="background:#25D366;border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       </button>
-      <button onclick="copiarInsta()" style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+      <button onclick="copiarInsta()" aria-label="Copiar para Instagram" style="background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);border:none;border-radius:10px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
       </button>
     </div>
@@ -141,29 +131,29 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: monosp
 
 <div class="inputs">
   <div class="input-group">
-    <label>📱 Nome do Produto <span style="color:#555;font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">— ou digite uma conta: 2000 - 500</span></label>
+    <label for="produto">📱 Nome do produto <span style="color:#666;font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">ou digite uma conta: 2000 - 500</span></label>
     <div style="display:flex;gap:8px;">
-      <input type="text" id="produto" placeholder="Ex: iPhone 16 ou 2000 - 500" style="text-transform:uppercase;flex:1;" oninput="detectarCalculo()">
-      <button onclick="document.getElementById('produto').value='';detectarCalculo();calcular();" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:0 14px;cursor:pointer;">🗑</button>
+      <input type="text" id="produto" placeholder="Ex: iPhone 16 ou 2000 - 500" style="text-transform:uppercase;flex:1;" autocomplete="off">
+      <button class="btn-lixo" aria-label="Limpar produto" onclick="document.getElementById('produto').value='';detectarCalculo();">🗑</button>
     </div>
     <div id="calc-preview" style="display:none;margin-top:6px;background:#1a1a1a;border-radius:8px;padding:8px 12px;align-items:center;justify-content:space-between;gap:8px;">
-      <span style="font-size:13px;color:#aaa;">🧮 Resultado: <span id="calc-resultado" style="color:#FFE566;font-weight:700;font-size:15px;"></span></span>
-      <button onclick="aplicarCalculo()" style="background:#FFE566;color:#111;border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:6px 12px;cursor:pointer;">✅ USAR VALOR</button>
+      <span style="font-size:13px;color:#aaa;">🧮 Resultado: <span id="calc-resultado" style="color:var(--am);font-weight:700;font-size:15px;"></span></span>
+      <button onclick="aplicarCalculo()" style="background:var(--am);color:#111;border:none;border-radius:8px;font-family:'Bebas Neue',Impact,sans-serif;font-size:14px;letter-spacing:1px;padding:6px 12px;cursor:pointer;">✅ Usar valor</button>
     </div>
   </div>
   <div class="input-group">
-    <label>💰 Valor que você quer receber (R$)</label>
+    <label for="valor">💰 Valor que você quer receber (R$)</label>
     <div style="display:flex;gap:8px;">
       <input type="number" id="valor" placeholder="Ex: 1000" inputmode="decimal" style="flex:1;">
-      <button onclick="limpar()" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:0 14px;cursor:pointer;white-space:nowrap;">🗑</button>
+      <button class="btn-lixo" aria-label="Limpar tudo" onclick="limpar()">🗑</button>
     </div>
   </div>
   <div class="input-group">
-    <label>✏️ Rodapé da mensagem (editável)</label>
+    <label for="rodape">✏️ Rodapé da mensagem (editável)</label>
     <div style="display:flex;gap:8px;align-items:flex-start;">
-      <textarea id="rodape" rows="2" placeholder="Ex: 📞 (11) 99999-9999 | @seuinstagram" style="flex:1;">📦 Entrega ou retirada combinada
-📲 Me chame para fechar negócio!</textarea>
-      <button onclick="document.getElementById('rodape').value='';" style="background:#222;border:2px solid #333;border-radius:10px;color:#888;font-size:18px;padding:10px 14px;cursor:pointer;">🗑</button>
+      <textarea id="rodape" rows="2" style="flex:1;">📦 Entrega ou retirada combinada
+📲 Chama a Zicão Store pra fechar negócio!</textarea>
+      <button class="btn-lixo" aria-label="Limpar rodapé" style="padding:10px 14px;" onclick="document.getElementById('rodape').value='';calcular();">🗑</button>
     </div>
   </div>
 </div>
@@ -171,54 +161,48 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: monosp
 <div id="card-captura">
   <div class="card-header">
     <div class="card-header-info">
-      <div class="card-subtitulo">📱 Produto</div>
+      <div class="card-loja">Zicão Store</div>
       <div class="card-produto" id="card-nome">PRODUTO</div>
     </div>
     <div style="font-size:24px;">💳</div>
   </div>
   <div class="card-faixa">
     <span class="card-faixa-txt">💰 Parcelando <span id="card-valor">R$ 0,00</span></span>
-    <span class="card-faixa-badge" id="card-maquina-badge">PagBank</span>
+    <span class="badge" id="card-maquina-badge">PagBank</span>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Parc.</th>
-        <th>Valor/Parc.</th>
-        <th>Total</th>
-        <th style="color:#aaa;font-size:10px;">Taxa</th>
-        <th>Juros</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-body"></tbody>
-  </table>
+  <div class="tabela-wrap">
+    <table>
+      <thead><tr><th>Parc.</th><th>Valor/Parc.</th><th>Total</th><th style="color:#aaa;">Taxa</th><th>Juros</th></tr></thead>
+      <tbody id="tabela-body"></tbody>
+    </table>
+  </div>
   <div class="card-rodape">
-    <span class="card-rodape-txt">📲 Fale para fechar negócio</span>
-    <span class="card-rodape-badge">🏆 Melhor taxa</span>
+    <span class="card-rodape-txt" id="card-rodape-txt"></span>
+    <span class="badge">🏆 Zicão Store</span>
   </div>
 </div>
 
 <div class="btns" id="btns">
-  <button class="btn btn-txt" onclick="copiarTexto()">💬 COPIAR TEXTO PARA WHATSAPP</button>
-  <button class="btn btn-insta" onclick="copiarInsta()">📸 COPIAR TEXTO PARA INSTAGRAM</button>
+  <button class="btn btn-txt" onclick="copiarTexto()">💬 Copiar texto para WhatsApp</button>
+  <button class="btn btn-insta" onclick="copiarInsta()">📸 Copiar texto para Instagram</button>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+const LOJA = 'Zicão Store';
 const maquinas = {
-  pagbank: {
-    nome: 'PagBank', cor: '#FFE566', corEscura: '#c8b450',
-    taxas: [[1,4.99],[2,5.83],[3,6.48],[4,7.12],[5,7.76],[6,8.39],[7,9.21],[8,9.83],[9,10.44],[10,11.05],[11,11.65],[12,12.25],[13,13.64],[14,14.23],[15,14.81],[16,15.39],[17,15.96],[18,16.53]]
-  },
-  picpay: {
-    nome: 'PicPay', cor: '#21C25E', corEscura: '#189449',
-    taxas: [[1,5.34],[2,6.22],[3,6.97],[4,7.69],[5,8.40],[6,9.11],[7,9.80],[8,10.50],[9,11.21],[10,11.92],[11,12.64],[12,13.37],[13,14.12],[14,14.87],[15,15.62],[16,16.38],[17,17.15],[18,17.93]]
-  }
+  pagbank: { nome: 'PagBank', cor: '#FFE566', corEscura: '#c8b450',
+    taxas: [[1,4.99],[2,5.83],[3,6.48],[4,7.12],[5,7.76],[6,8.39],[7,9.21],[8,9.83],[9,10.44],[10,11.05],[11,11.65],[12,12.25],[13,13.64],[14,14.23],[15,14.81],[16,15.39],[17,15.96],[18,16.53]] },
+  picpay: { nome: 'PicPay', cor: '#21C25E', corEscura: '#189449',
+    taxas: [[1,5.34],[2,6.22],[3,6.97],[4,7.69],[5,8.40],[6,9.11],[7,9.80],[8,10.50],[9,11.21],[10,11.92],[11,12.64],[12,13.37],[13,14.12],[14,14.87],[15,15.62],[16,16.38],[17,17.15],[18,17.93]] }
 };
 
 let maquinaAtual = 'pagbank';
 let taxas = maquinas.pagbank.taxas;
+
+try { const m = localStorage.getItem('zicao-maquina'); if (m && maquinas[m]) maquinaAtual = m; } catch (e) {}
+try { const r = localStorage.getItem('zicao-rodape'); if (r !== null) document.getElementById('rodape').value = r; } catch (e) {}
 
 function trocarMaquina(qual) {
   maquinaAtual = qual;
@@ -227,59 +211,56 @@ function trocarMaquina(qual) {
   document.getElementById('aba-' + qual).classList.add('ativa');
   document.getElementById('card-maquina-badge').textContent = maquinas[qual].nome;
   document.documentElement.style.setProperty('--am', maquinas[qual].cor);
-  var chip = document.querySelector('.splash-chip');
-  if (chip) chip.style.setProperty('background', maquinas[qual].corEscura);
+  try { localStorage.setItem('zicao-maquina', qual); } catch (e) {}
   calcular();
 }
 
 function fmt(n) { return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function lerValor() { return parseFloat(document.getElementById('valor').value) || 0; }
+function lerProduto() {
+  const p = document.getElementById('produto').value.trim();
+  return (p && !ehConta(p) ? p : 'PRODUTO').toUpperCase();
+}
 
 function calcular() {
-  const valor = parseFloat(document.getElementById('valor').value) || 0;
-  const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
-  document.getElementById('card-captura').style.display = valor > 0 ? 'block' : 'none';
-  document.getElementById('btns').style.display = valor > 0 ? 'flex' : 'none';
-  document.getElementById('card-nome').textContent = produto;
+  const valor = lerValor();
+  const mostrar = valor > 0;
+  document.getElementById('card-captura').style.display = mostrar ? 'block' : 'none';
+  document.getElementById('btns').style.display = mostrar ? 'flex' : 'none';
+  document.getElementById('card-nome').textContent = lerProduto();
   document.getElementById('card-valor').textContent = 'R$ ' + fmt(valor);
+  document.getElementById('card-rodape-txt').textContent = document.getElementById('rodape').value.trim();
   const tbody = document.getElementById('tabela-body');
   tbody.innerHTML = '';
   taxas.forEach(([parc, taxa]) => {
-    const totalCobrar = valor / (1 - taxa / 100);
-    const valorParc = totalCobrar / parc;
-    const juros = totalCobrar - valor;
+    const total = valor / (1 - taxa / 100);
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${parc}x</td><td class="td-parc">R$ ${fmt(valorParc)}</td><td class="td-total">R$ ${fmt(totalCobrar)}</td><td style="color:#aaa;font-size:11px;">${taxa}%</td><td class="td-juros">+R$ ${fmt(juros)}</td>`;
+    tr.innerHTML = `<td>${parc}x</td><td class="td-parc">R$ ${fmt(total / parc)}</td><td class="td-total">R$ ${fmt(total)}</td><td class="td-taxa">${fmt(taxa)}%</td><td class="td-juros">+R$ ${fmt(total - valor)}</td>`;
     tbody.appendChild(tr);
   });
 }
 
 function copiarTexto() {
-  const valor = parseFloat(document.getElementById('valor').value) || 0;
-  const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
+  const valor = lerValor();
+  if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
   const rodape = document.getElementById('rodape').value.trim();
-  const nomeMaq = maquinas[maquinaAtual].nome;
-  let linhas = [];
-  taxas.forEach(([parc, taxa]) => {
-    const totalCobrar = valor / (1 - taxa / 100);
-    const valorParc = totalCobrar / parc;
-    linhas.push(`${String(parc).padStart(2,'0')}x ${fmt(valorParc).padStart(9,' ')} | ${fmt(totalCobrar).padStart(9,' ')}`);
+  const linhas = taxas.map(([parc, taxa]) => {
+    const total = valor / (1 - taxa / 100);
+    return `${String(parc).padStart(2,'0')}x ${fmt(total / parc).padStart(9,' ')} | ${fmt(total).padStart(9,' ')}`;
   });
-  const msg = `📱 *${produto}* 🤩\n\n💰 *Valor parcelado: R$ ${fmt(valor)}*\n🏦 *${nomeMaq}*\n\n💳 *Opções no Cartão (R$):*\n\`\`\`\nPx.   Parcela |     Total\n-------------------------\n${linhas.join('\n')}\n\`\`\`\n\n${rodape}`;
+  const msg = `🏪 *${LOJA.toUpperCase()}*\n📱 *${lerProduto()}* 🤩\n\n💰 *Valor à vista: R$ ${fmt(valor)}*\n🏦 *${maquinas[maquinaAtual].nome}*\n\n💳 *Opções no cartão (R$):*\n\`\`\`\nPx.   Parcela |     Total\n-------------------------\n${linhas.join('\n')}\n\`\`\`\n\n${rodape}`;
   copiar(msg, '✅ Copiado! Cole no WhatsApp');
 }
 
 function copiarInsta() {
-  const valor = parseFloat(document.getElementById('valor').value) || 0;
-  const produto = (document.getElementById('produto').value.trim() || 'PRODUTO').toUpperCase();
+  const valor = lerValor();
+  if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
   const rodape = document.getElementById('rodape').value.trim();
-  const nomeMaq = maquinas[maquinaAtual].nome;
-  let linhas = [];
-  taxas.forEach(([parc, taxa]) => {
-    const totalCobrar = valor / (1 - taxa / 100);
-    const valorParc = totalCobrar / parc;
-    linhas.push(`${String(parc).padStart(2,'0')}x R$ ${fmt(valorParc)} → total R$ ${fmt(totalCobrar)}`);
+  const linhas = taxas.map(([parc, taxa]) => {
+    const total = valor / (1 - taxa / 100);
+    return `${String(parc).padStart(2,'0')}x R$ ${fmt(total / parc)} → total R$ ${fmt(total)}`;
   });
-  const msg = `📱 ${produto}\n💰 R$ ${fmt(valor)} no cartão — ${nomeMaq}\n━━━━━━━━━━━━━━━\n${linhas.join('\n')}\n━━━━━━━━━━━━━━━\n${rodape}`;
+  const msg = `🏪 ${LOJA}\n📱 ${lerProduto()}\n💰 R$ ${fmt(valor)} à vista — ${maquinas[maquinaAtual].nome}\n━━━━━━━━━━━━━━━\n${linhas.join('\n')}\n━━━━━━━━━━━━━━━\n${rodape}`;
   copiar(msg, '📸 Copiado! Cole no Instagram');
 }
 
@@ -292,56 +273,87 @@ function fallback(msg, ok) {
   const ta = document.createElement('textarea');
   ta.value = msg; ta.style.position = 'fixed'; ta.style.opacity = '0';
   document.body.appendChild(ta); ta.focus(); ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
+  let deu = false;
+  try { deu = document.execCommand('copy'); } catch (e) {}
   document.body.removeChild(ta);
-  mostrarToast(ok);
+  mostrarToast(deu ? ok : 'Não deu pra copiar neste navegador');
 }
 
 function limpar() {
   document.getElementById('valor').value = '';
   document.getElementById('produto').value = '';
-  document.getElementById('card-captura').style.display = 'none';
-  document.getElementById('btns').style.display = 'none';
+  document.getElementById('calc-preview').style.display = 'none';
+  calcular();
   document.getElementById('valor').focus();
   mostrarToast('🗑 Limpo!');
 }
 
+let toastTimer;
 function mostrarToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+/* Calculadora segura (sem eval): suporta + - * / x ÷ ( ) e vírgula decimal */
+function ehConta(s) { return /^[\d\s+\-*/.,x÷()]+$/i.test(s) && /[+\-*/x÷]/i.test(s) && /\d/.test(s); }
+function avaliar(expr) {
+  const s = expr.replace(/x/gi, '*').replace(/÷/g, '/').replace(/\./g, '').replace(/,/g, '.').replace(/\s+/g, '');
+  let i = 0;
+  const num = () => {
+    if (s[i] === '(') { i++; const v = soma(); if (s[i] !== ')') throw 0; i++; return v; }
+    if (s[i] === '-') { i++; return -num(); }
+    const m = /^\d+(\.\d+)?/.exec(s.slice(i));
+    if (!m) throw 0; i += m[0].length; return parseFloat(m[0]);
+  };
+  const prod = () => { let v = num(); while (s[i] === '*' || s[i] === '/') { const op = s[i++]; const b = num(); v = op === '*' ? v * b : v / b; } return v; };
+  const soma = () => { let v = prod(); while (s[i] === '+' || s[i] === '-') { const op = s[i++]; const b = prod(); v = op === '+' ? v + b : v - b; } return v; };
+  const v = soma();
+  if (i !== s.length) throw 0;
+  return v;
 }
 
 function detectarCalculo() {
   const input = document.getElementById('produto').value.trim();
   const preview = document.getElementById('calc-preview');
-  const resultado = document.getElementById('calc-resultado');
-  const ehConta = /^[\d\s\+\-\*\/\.\,x÷]+$/.test(input) && /[\+\-\*\/x÷]/.test(input);
-  if (!ehConta || !input) { preview.style.display = 'none'; calcular(); return; }
+  if (!input || !ehConta(input)) { preview.style.display = 'none'; calcular(); return; }
   try {
-    const expr = input.replace(/x/gi,'*').replace(/÷/g,'/').replace(/,/g,'.');
-    const val = Function('"use strict"; return (' + expr + ')')();
-    if (isFinite(val) && val >= 0) { resultado.textContent = 'R$ ' + fmt(val); preview.style.display = 'flex'; preview.dataset.val = val; }
-    else { preview.style.display = 'none'; }
-  } catch(e) { preview.style.display = 'none'; }
+    const val = avaliar(input);
+    if (isFinite(val) && val >= 0) {
+      document.getElementById('calc-resultado').textContent = 'R$ ' + fmt(val);
+      preview.style.display = 'flex'; preview.dataset.val = val;
+    } else { preview.style.display = 'none'; }
+  } catch (e) { preview.style.display = 'none'; }
+  calcular();
 }
 
 function aplicarCalculo() {
   const preview = document.getElementById('calc-preview');
   const val = parseFloat(preview.dataset.val);
-  if (val > 0) { document.getElementById('valor').value = val.toFixed(2); document.getElementById('produto').value = ''; preview.style.display = 'none'; calcular(); }
+  if (val > 0) {
+    document.getElementById('valor').value = val.toFixed(2);
+    document.getElementById('produto').value = '';
+    preview.style.display = 'none';
+    calcular();
+    document.getElementById('produto').focus();
+  }
 }
 
 setTimeout(() => {
   const splash = document.getElementById('splash');
   splash.classList.add('hide');
   setTimeout(() => splash.remove(), 500);
-}, 1800);
+}, 1600);
 
 document.getElementById('valor').addEventListener('input', calcular);
-document.getElementById('produto').addEventListener('input', calcular);
-calcular();
+document.getElementById('produto').addEventListener('input', detectarCalculo);
+document.getElementById('rodape').addEventListener('input', () => {
+  try { localStorage.setItem('zicao-rodape', document.getElementById('rodape').value); } catch (e) {}
+  calcular();
+});
+trocarMaquina(maquinaAtual);
 </script>
 </body>
 </html>
