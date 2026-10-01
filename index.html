@@ -194,6 +194,11 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+/* =====================================================================
+   CONFIGURAÇÃO
+   Taxas de cada maquininha: [parcelas, taxa %]. Quando o PagBank/PicPay
+   mudar as taxas, só editar estas tabelas — o resto do app se ajusta.
+   ===================================================================== */
 const LOJA = 'Zicão Store';
 const maquinas = {
   pagbank: { nome: 'PagBank', cor: '#FFE566', corEscura: '#c8b450',
@@ -202,6 +207,10 @@ const maquinas = {
     taxas: [[1,5.34],[2,6.22],[3,6.97],[4,7.69],[5,8.40],[6,9.11],[7,9.80],[8,10.50],[9,11.21],[10,11.92],[11,12.64],[12,13.37],[13,14.12],[14,14.87],[15,15.62],[16,16.38],[17,17.15],[18,17.93]] }
 };
 
+/* =====================================================================
+   ESTADO + PREFERÊNCIAS SALVAS (localStorage)
+   try/catch porque o localStorage pode falhar em aba anônima.
+   ===================================================================== */
 let maquinaAtual = 'pagbank';
 let taxas = maquinas.pagbank.taxas;
 
@@ -226,6 +235,13 @@ function lerProduto() {
   return (p && !ehConta(p) ? p : 'PRODUTO').toUpperCase();
 }
 
+/* =====================================================================
+   CÁLCULO + TELA
+   Fórmula: total = valor_à_vista / (1 - taxa).
+   A taxa incide sobre o total cobrado, então dividir (e não somar a taxa)
+   garante que, depois do desconto da maquininha, sobra exatamente o
+   valor à vista. Ex.: 1000 / (1 - 0,0499) = 1052,52 → 1052,52 - 4,99% = 1000.
+   ===================================================================== */
 function calcular() {
   const valor = lerValor();
   const mostrar = valor > 0;
@@ -244,6 +260,11 @@ function calcular() {
   });
 }
 
+/* =====================================================================
+   TEXTO PRA COPIAR
+   WhatsApp: tabela dentro de ``` (fonte monoespaçada) pra colunas alinharem.
+   Instagram: não tem monoespaçada, então usa uma linha por parcela.
+   ===================================================================== */
 function copiarTexto() {
   const valor = lerValor();
   if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
@@ -268,6 +289,8 @@ function copiarInsta() {
   copiar(msg, '📸 Copiado! Cole no Instagram');
 }
 
+/* Copia pra área de transferência: API moderna primeiro; se falhar
+   (iOS antigo / página sem HTTPS), cai no método antigo com textarea. */
 function copiar(msg, ok) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(msg).then(() => mostrarToast(ok)).catch(() => fallback(msg, ok));
@@ -301,7 +324,15 @@ function mostrarToast(msg) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-/* Calculadora segura (sem eval): suporta + - * / x ÷ ( ) e vírgula decimal */
+/* =====================================================================
+   CALCULADORA NO CAMPO PRODUTO (sem eval, então não executa código)
+   Aceita + - * / x ÷ ( ) e vírgula decimal. O PONTO é tratado como
+   separador de milhar e removido: "2.000 - 500" = 1500.
+   Parser recursivo com precedência:
+     soma = prod (('+'|'-') prod)*
+     prod = num  (('*'|'/') num)*
+     num  = número | '(' soma ')' | '-' num
+   ===================================================================== */
 function ehConta(s) { return /^[\d\s+\-*/.,x÷()]+$/i.test(s) && /[+\-*/x÷]/i.test(s) && /\d/.test(s); }
 function avaliar(expr) {
   const s = expr.replace(/x/gi, '*').replace(/÷/g, '/').replace(/\./g, '').replace(/,/g, '.').replace(/\s+/g, '');
@@ -345,6 +376,9 @@ function aplicarCalculo() {
   }
 }
 
+/* =====================================================================
+   INICIALIZAÇÃO
+   ===================================================================== */
 setTimeout(() => {
   const splash = document.getElementById('splash');
   splash.classList.add('hide');
