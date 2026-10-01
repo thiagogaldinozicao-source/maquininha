@@ -12,6 +12,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=2">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=2">
 <link rel="manifest" href="manifest.webmanifest?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -237,13 +239,24 @@ function parseBR(t) {
   t = t.includes(',') ? t.replace(/\./g, '').replace(',', '.') : t.replace(MILHAR, '');
   return parseFloat(t);
 }
-function lerValor() { return parseBR(document.getElementById('valor').value) || 0; }
+/* Só aceita dígitos, ponto, vírgula e espaço; se tiver letra, borda vermelha e valor 0. */
+function lerValor() {
+  const el = document.getElementById('valor');
+  const ok = /^[\d.,\s]*$/.test(el.value);
+  el.style.borderColor = ok ? '' : '#e5534b';
+  return ok ? (parseBR(el.value) || 0) : 0;
+}
 
-/* Fonte única da conta: tabela, WhatsApp e Instagram usam esta função. */
+/* Fonte única da conta: tabela, WhatsApp e Instagram usam esta função.
+   A parcela é arredondada PRA CIMA no centavo e o total = parcela × vezes,
+   assim "Nx de R$ P" sempre fecha com o total e a loja nunca recebe menos
+   que o valor à vista. (-1e-9 evita erro de float tipo 5000.0000001 → 5001) */
 function simular(valor) {
   return taxas.map(([parc, taxa]) => {
-    const total = valor / (1 - taxa / 100);
-    return { parc, taxa, total, parcela: total / parc, juros: total - valor };
+    const bruto = valor / (1 - taxa / 100);
+    const parcela = Math.ceil((bruto / parc) * 100 - 1e-9) / 100;
+    const total = Math.round(parcela * parc * 100) / 100;
+    return { parc, taxa, total, parcela, juros: total - valor };
   });
 }
 function lerProduto() {
