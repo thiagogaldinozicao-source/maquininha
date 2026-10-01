@@ -148,7 +148,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
   <div class="input-group">
     <label for="valor">💰 Valor que você quer receber (R$)</label>
     <div style="display:flex;gap:8px;">
-      <input type="number" id="valor" placeholder="Ex: 1000" inputmode="decimal" style="flex:1;">
+      <input type="text" id="valor" placeholder="Ex: 1500,50" inputmode="decimal" autocomplete="off" style="flex:1;">
       <button class="btn-lixo" aria-label="Limpar tudo" onclick="limpar()">🗑</button>
     </div>
   </div>
@@ -157,7 +157,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="rodape" rows="2" style="flex:1;">📦 Entrega ou retirada combinada
 📲 Chama a Zicão Store pra fechar negócio!</textarea>
-      <button class="btn-lixo" aria-label="Limpar rodapé" style="padding:10px 14px;" onclick="document.getElementById('rodape').value='';calcular();">🗑</button>
+      <button class="btn-lixo" aria-label="Limpar rodapé" style="padding:10px 14px;" onclick="limparRodape()">🗑</button>
     </div>
   </div>
 </div>
@@ -229,7 +229,23 @@ function trocarMaquina(qual) {
 }
 
 function fmt(n) { return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function lerValor() { return parseFloat(document.getElementById('valor').value) || 0; }
+/* Converte texto em número no padrão BR. Ponto seguido de 3 dígitos = milhar
+   (2.000 → 2000); senão é decimal (1.5 → 1,5). Vírgula é sempre decimal. */
+const MILHAR = /\.(?=\d{3}(?!\d))/g;
+function parseBR(t) {
+  t = String(t).trim().replace(/\s/g, '');
+  t = t.includes(',') ? t.replace(/\./g, '').replace(',', '.') : t.replace(MILHAR, '');
+  return parseFloat(t);
+}
+function lerValor() { return parseBR(document.getElementById('valor').value) || 0; }
+
+/* Fonte única da conta: tabela, WhatsApp e Instagram usam esta função. */
+function simular(valor) {
+  return taxas.map(([parc, taxa]) => {
+    const total = valor / (1 - taxa / 100);
+    return { parc, taxa, total, parcela: total / parc, juros: total - valor };
+  });
+}
 function lerProduto() {
   const p = document.getElementById('produto').value.trim();
   return (p && !ehConta(p) ? p : 'PRODUTO').toUpperCase();
@@ -251,13 +267,9 @@ function calcular() {
   document.getElementById('card-valor').textContent = 'R$ ' + fmt(valor);
   document.getElementById('card-rodape-txt').textContent = document.getElementById('rodape').value.trim();
   const tbody = document.getElementById('tabela-body');
-  tbody.innerHTML = '';
-  taxas.forEach(([parc, taxa]) => {
-    const total = valor / (1 - taxa / 100);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${parc}x</td><td class="td-parc">R$ ${fmt(total / parc)}</td><td class="td-total">R$ ${fmt(total)}</td><td class="td-taxa">${fmt(taxa)}%</td><td class="td-juros">+R$ ${fmt(total - valor)}</td>`;
-    tbody.appendChild(tr);
-  });
+  tbody.innerHTML = simular(valor).map(s =>
+    `<tr><td>${s.parc}x</td><td class="td-parc">R$ ${fmt(s.parcela)}</td><td class="td-total">R$ ${fmt(s.total)}</td><td class="td-taxa">${fmt(s.taxa)}%</td><td class="td-juros">+R$ ${fmt(s.juros)}</td></tr>`
+  ).join('');
 }
 
 /* =====================================================================
@@ -269,10 +281,8 @@ function copiarTexto() {
   const valor = lerValor();
   if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
   const rodape = document.getElementById('rodape').value.trim();
-  const linhas = taxas.map(([parc, taxa]) => {
-    const total = valor / (1 - taxa / 100);
-    return `${String(parc).padStart(2,'0')}x ${fmt(total / parc).padStart(9,' ')} | ${fmt(total).padStart(9,' ')}`;
-  });
+  const linhas = simular(valor).map(s =>
+    `${String(s.parc).padStart(2,'0')}x ${fmt(s.parcela).padStart(9,' ')} | ${fmt(s.total).padStart(9,' ')}`);
   const msg = `🏪 *${LOJA.toUpperCase()}*\n📱 *${lerProduto()}* 🤩\n\n💰 *Valor à vista: R$ ${fmt(valor)}*\n🏦 *${maquinas[maquinaAtual].nome}*\n\n💳 *Opções no cartão (R$):*\n\`\`\`\nPx.   Parcela |     Total\n-------------------------\n${linhas.join('\n')}\n\`\`\`\n\n${rodape}`;
   copiar(msg, '✅ Copiado! Cole no WhatsApp');
 }
@@ -281,10 +291,8 @@ function copiarInsta() {
   const valor = lerValor();
   if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
   const rodape = document.getElementById('rodape').value.trim();
-  const linhas = taxas.map(([parc, taxa]) => {
-    const total = valor / (1 - taxa / 100);
-    return `${String(parc).padStart(2,'0')}x R$ ${fmt(total / parc)} → total R$ ${fmt(total)}`;
-  });
+  const linhas = simular(valor).map(s =>
+    `${String(s.parc).padStart(2,'0')}x R$ ${fmt(s.parcela)} → total R$ ${fmt(s.total)}`);
   const msg = `🏪 ${LOJA}\n📱 ${lerProduto()}\n💰 R$ ${fmt(valor)} à vista — ${maquinas[maquinaAtual].nome}\n━━━━━━━━━━━━━━━\n${linhas.join('\n')}\n━━━━━━━━━━━━━━━\n${rodape}`;
   copiar(msg, '📸 Copiado! Cole no Instagram');
 }
@@ -327,7 +335,7 @@ function mostrarToast(msg) {
 /* =====================================================================
    CALCULADORA NO CAMPO PRODUTO (sem eval, então não executa código)
    Aceita + - * / x ÷ ( ) e vírgula decimal. O PONTO é tratado como
-   separador de milhar e removido: "2.000 - 500" = 1500.
+   milhar só se vier seguido de 3 dígitos: "2.000 - 500" = 1500, "1.5 + 1" = 2,5.
    Parser recursivo com precedência:
      soma = prod (('+'|'-') prod)*
      prod = num  (('*'|'/') num)*
@@ -335,7 +343,7 @@ function mostrarToast(msg) {
    ===================================================================== */
 function ehConta(s) { return /^[\d\s+\-*/.,x÷()]+$/i.test(s) && /[+\-*/x÷]/i.test(s) && /\d/.test(s); }
 function avaliar(expr) {
-  const s = expr.replace(/x/gi, '*').replace(/÷/g, '/').replace(/\./g, '').replace(/,/g, '.').replace(/\s+/g, '');
+  const s = expr.replace(/x/gi, '*').replace(/÷/g, '/').replace(/\s+/g, '').replace(MILHAR, '').replace(/,/g, '.');
   let i = 0;
   const num = () => {
     if (s[i] === '(') { i++; const v = soma(); if (s[i] !== ')') throw 0; i++; return v; }
@@ -368,7 +376,7 @@ function aplicarCalculo() {
   const preview = document.getElementById('calc-preview');
   const val = parseFloat(preview.dataset.val);
   if (val > 0) {
-    document.getElementById('valor').value = val.toFixed(2);
+    document.getElementById('valor').value = val.toFixed(2).replace('.', ',');
     document.getElementById('produto').value = '';
     preview.style.display = 'none';
     calcular();
@@ -383,7 +391,7 @@ setTimeout(() => {
   const splash = document.getElementById('splash');
   splash.classList.add('hide');
   setTimeout(() => splash.remove(), 500);
-}, 1600);
+}, 500);
 
 document.getElementById('valor').addEventListener('input', calcular);
 document.getElementById('produto').addEventListener('input', detectarCalculo);
@@ -391,7 +399,16 @@ document.getElementById('rodape').addEventListener('input', () => {
   try { localStorage.setItem('zicao-rodape', document.getElementById('rodape').value); } catch (e) {}
   calcular();
 });
+function limparRodape() {
+  document.getElementById('rodape').value = '';
+  try { localStorage.setItem('zicao-rodape', ''); } catch (e) {}
+  calcular();
+}
+
 trocarMaquina(maquinaAtual);
+
+/* Modo offline: o service worker guarda o app no celular (sw.js). */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>

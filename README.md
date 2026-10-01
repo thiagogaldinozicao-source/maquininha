@@ -19,6 +19,7 @@ Exemplo: R$ 1.000 no PagBank 1x (4,99%) → cobra R$ 1.052,52.
 index.html             app inteiro (HTML + CSS + JS, sem dependências)
 manifest.webmanifest   nome/ícones quando instalado na tela inicial
 favicon.svg            ícone da aba do navegador
+sw.js                  service worker (app abre sem internet)
 icons/                 PNGs dos ícones (iPhone, Android, App Store)
 icons/icon.svg         desenho-fonte do ícone
 icons/gen.py           regenera todos os PNGs a partir do SVG
@@ -42,6 +43,8 @@ Para testar no celular na mesma rede Wi-Fi, abra `http://IP-DO-PC:8000`.
 ## Publicar
 
 O site é servido pelo **GitHub Pages** a partir da branch `main` (pasta raiz). Para publicar, basta dar push na `main`; o site atualiza em 1 a 2 minutos.
+
+O HTML sempre busca a versão nova quando há internet. Se mudar ícones ou o manifest, aumente `VERSAO` no `sw.js` para limpar o cache antigo.
 
 ## Tarefas comuns
 
