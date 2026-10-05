@@ -23,6 +23,8 @@ html { scroll-padding-top: env(safe-area-inset-top, 0px); background: #0a0a0a; }
 body { background: var(--bg); color: #f0f0f0; font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; padding-bottom: 60px; }
 
 header { background: var(--bg2); border-bottom: 3px solid var(--am); transition: border-color 0.3s; padding: 14px 16px 12px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 100; }
+.logo-topo { display: block; height: 44px; width: auto; }
+.splash-logo { width: 230px; max-width: 70vw; height: auto; }
 header h1 { font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif; font-size: 26px; letter-spacing: 2px; color: var(--am); line-height: 1; }
 header p { font-size: 11px; color: #777; margin-top: 3px; }
 
@@ -108,12 +110,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
 <body>
 
 <div id="splash">
-  <div class="splash-card">
-    <div class="splash-chip"></div>
-    <div class="splash-stripe"></div>
-    <div class="splash-z">Z</div>
-  </div>
-  <div class="splash-title">Zicão Store</div>
+  <img class="splash-logo" src="logo.png?v=1" alt="Zicão Store">
   <div class="splash-sub">Simulador de Compras</div>
   <div class="splash-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
 </div>
@@ -121,7 +118,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
 <header>
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
     <div>
-      <h1>Zicão Store</h1>
+      <h1><img class="logo-topo" src="logo.png?v=1" alt="Zicão Store"></h1>
       <p>Simulador de compras no cartão · copie direto pro WhatsApp</p>
     </div>
     <div style="display:flex;gap:8px;">
