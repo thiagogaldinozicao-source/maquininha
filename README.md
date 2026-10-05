@@ -71,4 +71,4 @@ Para adicionar outra maquininha, crie uma nova chave nesse objeto e um botão `.
 
 ## Dados salvos
 
-O app guarda só duas coisas no `localStorage` do navegador: a última maquininha usada (`zicao-maquina`) e o rodapé (`zicao-rodape`). Nada é enviado pra servidor nenhum.
+O app guarda no `localStorage` do navegador: a última maquininha usada (`zicao-maquina`), o rodapé (`zicao-rodape`) e as chaves de som e vibração (`zicao-som`, `zicao-vib`). Nada é enviado pra servidor nenhum.

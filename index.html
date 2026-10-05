@@ -38,6 +38,11 @@ header p { font-size: 11px; color: #777; margin-top: 3px; }
 .input-group textarea { resize: none; font-size: 14px; line-height: 1.5; }
 .btn-lixo { background: #222; border: 2px solid #333; border-radius: 10px; color: #888; font-size: 18px; padding: 0 14px; cursor: pointer; }
 button:focus-visible { outline: 2px solid var(--am); outline-offset: 2px; }
+button { touch-action: manipulation; }
+
+.ajustes { display: flex; justify-content: center; gap: 8px; margin: 26px 16px 0; }
+.chave { background: #161616; border: 1px solid #2a2a2a; color: #888; font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 20px; cursor: pointer; opacity: .5; transition: opacity .2s, color .2s; }
+.chave.on { color: #ddd; border-color: #3a3a3a; opacity: 1; }
 
 #card-captura { margin: 14px 16px; background: var(--bg2); border-radius: 14px; overflow: hidden; border: 2px solid var(--am); display: none; }
 @media (min-width: 420px) { #card-captura { max-width: 380px; margin: 14px auto; } }
@@ -131,8 +136,8 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
 </header>
 
 <div class="abas">
-  <button class="aba ativa" id="aba-pagbank" onclick="trocarMaquina('pagbank')">🏦 PagBank</button>
-  <button class="aba" id="aba-picpay" onclick="trocarMaquina('picpay')">💚 PicPay</button>
+  <button class="aba ativa" id="aba-pagbank" onclick="escolherMaquina('pagbank')">🏦 PagBank</button>
+  <button class="aba" id="aba-picpay" onclick="escolherMaquina('picpay')">💚 PicPay</button>
 </div>
 
 <div class="inputs">
@@ -140,7 +145,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
     <label for="produto">📱 Nome do produto <span style="color:#666;font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">ou digite uma conta: 2000 - 500</span></label>
     <div style="display:flex;gap:8px;">
       <input type="text" id="produto" placeholder="Ex: iPhone 16 ou 2000 - 500" style="text-transform:uppercase;flex:1;" autocomplete="off">
-      <button class="btn-lixo" aria-label="Limpar produto" onclick="document.getElementById('produto').value='';detectarCalculo();">🗑</button>
+      <button class="btn-lixo" aria-label="Limpar produto" onclick="limparProduto()">🗑</button>
     </div>
     <div id="calc-preview" style="display:none;margin-top:6px;background:#1a1a1a;border-radius:8px;padding:8px 12px;align-items:center;justify-content:space-between;gap:8px;">
       <span style="font-size:13px;color:#aaa;">🧮 Resultado: <span id="calc-resultado" style="color:var(--am);font-weight:700;font-size:15px;"></span></span>
@@ -193,9 +198,175 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
   <button class="btn btn-insta" onclick="copiarInsta()">📸 Copiar texto para Instagram</button>
 </div>
 
+<div class="ajustes">
+  <button class="chave on" id="chave-som" data-mudo onclick="SOM.chaveSom()" aria-pressed="true">🔊 Som</button>
+  <button class="chave on" id="chave-vib" data-mudo onclick="SOM.chaveVib()" aria-pressed="true">📳 Vibração</button>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+/* =====================================================================
+   SONS + VIBRAÇÃO
+   Personalidade: loja/dinheiro → timbre limpo e brilhante (seno/triângulo,
+   notas agudas afinadas). Tudo sintetizado com Web Audio, sem arquivo,
+   funciona offline. Só toca em resposta a toque do usuário.
+   Chaves de Som e Vibração no rodapé (salvas no localStorage).
+   ===================================================================== */
+const SOM = (() => {
+  const VOL = 0.18;                      // volume geral (baixo)
+  let ctx = null, saida = null, ultimo = 0, ruido = null, hap = null;
+  const lerPref = k => { try { return localStorage.getItem(k) !== '0'; } catch (e) { return true; } };
+  let somOn = lerPref('zicao-som'), vibOn = lerPref('zicao-vib');
+  try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
+
+  function acordar() {
+    try {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+        const comp = ctx.createDynamicsCompressor();
+        saida = ctx.createGain(); saida.gain.value = VOL;
+        saida.connect(comp); comp.connect(ctx.destination);
+      }
+      if (ctx.state !== 'running') ctx.resume();
+    } catch (e) { return null; }
+    return ctx;
+  }
+  const marca = () => { ultimo = Date.now(); };
+
+  /* Nota afinada: freq f, começa em t (s), dura d (s), glide opcional até f2. */
+  function nota(f, t = 0, d = 0.12, { tipo = 'sine', vol = 1, f2 = 0 } = {}) {
+    if (!somOn || !acordar()) return;
+    const t0 = ctx.currentTime + t, o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = tipo; o.frequency.setValueAtTime(f, t0);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + d);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    o.connect(g); g.connect(saida); o.start(t0); o.stop(t0 + d + 0.02);
+  }
+  /* Sopro: ruído filtrado com o filtro deslizando de fIni até fFim. */
+  function sopro(fIni, fFim, d = 0.24, vol = 0.22, t = 0) {
+    if (!somOn || !acordar()) return;
+    if (!ruido) {
+      ruido = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.5), ctx.sampleRate);
+      const ch = ruido.getChannelData(0);
+      for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+    }
+    const t0 = ctx.currentTime + t, s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = ruido; fl.type = 'bandpass'; fl.Q.value = 1.2;
+    fl.frequency.setValueAtTime(fIni, t0); fl.frequency.exponentialRampToValueAtTime(fFim, t0 + d);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + d * 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    s.connect(fl); fl.connect(g); g.connect(saida); s.start(t0); s.stop(t0 + d + 0.02);
+  }
+  /* Vibração: Android usa navigator.vibrate; iPhone (iOS 18+) usa o truque
+     do interruptor escondido (só funciona dentro do toque). */
+  function vibrar(ms = 10) {
+    if (!vibOn) return;
+    try {
+      if (navigator.vibrate) { navigator.vibrate(ms); return; }
+      if (!hap) {
+        hap = document.createElement('label');
+        hap.setAttribute('data-mudo', ''); hap.setAttribute('aria-hidden', 'true');
+        hap.style.cssText = 'position:fixed;left:-99px;top:0;opacity:0;pointer-events:none;';
+        hap.innerHTML = '<input type="checkbox" switch tabindex="-1">';
+        document.body.appendChild(hap);
+      }
+      hap.click();
+    } catch (e) {}
+  }
+
+  const S = {
+    tic() { nota(1900, 0, 0.03, { tipo: 'triangle', vol: 0.35 }); },
+    /* Trocar maquininha: roleta (2 tiques) + nota da máquina. */
+    aba(qual) {
+      marca();
+      nota(1500, 0, 0.025, { tipo: 'triangle', vol: 0.4 });
+      nota(1150, 0.035, 0.025, { tipo: 'triangle', vol: 0.35 });
+      nota(qual === 'picpay' ? 1318.5 : 1568, 0.075, 0.14, { vol: 0.5 });
+      vibrar(8);
+    },
+    /* Copiar: tic-tic + moedinha (WhatsApp) ou brilho subindo (Instagram). */
+    copiar(rede) {
+      marca();
+      nota(2400, 0, 0.025, { tipo: 'triangle', vol: 0.4 });
+      nota(2400, 0.06, 0.025, { tipo: 'triangle', vol: 0.4 });
+      if (rede === 'insta') [1568, 2093, 2637].forEach((f, i) => nota(f, 0.13 + i * 0.06, 0.18, { vol: 0.45 }));
+      else { nota(1975.5, 0.13, 0.08, { vol: 0.55 }); nota(2637, 0.2, 0.32, { vol: 0.55 }); }
+      vibrar(15);
+    },
+    /* Usar valor da conta: pop com brilho. */
+    usar() {
+      marca();
+      nota(320, 0, 0.07, { f2: 640, vol: 0.6 });
+      nota(1760, 0.06, 0.2, { vol: 0.4 });
+      nota(2637, 0.09, 0.18, { vol: 0.2 });
+      vibrar(10);
+    },
+    /* Apagar: descendo (forte = limpar tudo). */
+    apagar(forte) {
+      marca();
+      nota(forte ? 880 : 660, 0, forte ? 0.22 : 0.15, { f2: forte ? 220 : 330, tipo: 'triangle', vol: 0.45 });
+      sopro(forte ? 1800 : 1400, 300, forte ? 0.25 : 0.16, 0.25);
+      vibrar(forte ? 18 : 8);
+    },
+    erro() {
+      marca();
+      nota(233, 0, 0.11, { tipo: 'triangle', vol: 0.7 });
+      nota(175, 0.12, 0.17, { tipo: 'triangle', vol: 0.7 });
+      vibrar([20, 40, 20]);
+    },
+    abre() { sopro(500, 1800, 0.24); },     // tabela aparece
+    fecha() { sopro(1800, 500, 0.22); },    // tabela some
+    bip() { nota(1318.5, 0, 0.05, { tipo: 'square', vol: 0.12 }); nota(1760, 0.055, 0.05, { tipo: 'square', vol: 0.12 }); }, // calculadora achou conta
+  };
+
+  function pintar() {
+    const s = document.getElementById('chave-som'), v = document.getElementById('chave-vib');
+    if (s) { s.textContent = somOn ? '🔊 Som' : '🔇 Som'; s.classList.toggle('on', somOn); s.setAttribute('aria-pressed', somOn); }
+    if (v) { v.textContent = vibOn ? '📳 Vibração' : '📴 Vibração'; v.classList.toggle('on', vibOn); v.setAttribute('aria-pressed', vibOn); }
+  }
+  function salvar() {
+    try { localStorage.setItem('zicao-som', somOn ? '1' : '0'); localStorage.setItem('zicao-vib', vibOn ? '1' : '0'); } catch (e) {}
+    pintar();
+  }
+  /* Interruptores: clique subindo ao ligar, descendo ao desligar. */
+  S.chaveSom = () => {
+    marca();
+    if (somOn) { nota(1200, 0, 0.06, { f2: 800, tipo: 'triangle', vol: 0.5 }); somOn = false; }
+    else { somOn = true; nota(800, 0, 0.06, { f2: 1200, tipo: 'triangle', vol: 0.5 }); }
+    salvar();
+  };
+  S.chaveVib = () => {
+    marca();
+    vibOn = !vibOn;
+    nota(vibOn ? 800 : 1200, 0, 0.06, { f2: vibOn ? 1200 : 800, tipo: 'triangle', vol: 0.5 });
+    if (vibOn) vibrar(15);
+    salvar();
+  };
+  S.pintar = pintar;
+
+  /* iPhone: liga o áudio no primeiro toque e de novo ao voltar do segundo plano. */
+  ['pointerdown', 'touchend'].forEach(ev => document.addEventListener(ev, acordar, { capture: true, passive: true }));
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && ctx && ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} }
+  });
+  /* Tic genérico em qualquer botão, se nenhum som específico tocou agora. */
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('button');
+    if (!b || b.closest('[data-mudo]') || Date.now() - ultimo < 120) return;
+    S.tic();
+  });
+  return S;
+})();
+
+/* Erro com som + aviso. */
+function ruim(msg) { SOM.erro(); mostrarToast(msg); }
+
 /* =====================================================================
    CONFIGURAÇÃO
    Taxas de cada maquininha: [parcelas, taxa %]. Quando o PagBank/PicPay
@@ -228,6 +399,11 @@ function trocarMaquina(qual) {
   document.documentElement.style.setProperty('--am', maquinas[qual].cor);
   try { localStorage.setItem('zicao-maquina', qual); } catch (e) {}
   calcular();
+}
+
+function escolherMaquina(qual) {
+  if (qual !== maquinaAtual) SOM.aba(qual);
+  trocarMaquina(qual);
 }
 
 function fmt(n) { return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -292,27 +468,28 @@ function calcular() {
    ===================================================================== */
 function copiarTexto() {
   const valor = lerValor();
-  if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
+  if (!(valor > 0)) { ruim('Digite um valor primeiro'); return; }
   const rodape = document.getElementById('rodape').value.trim();
   const linhas = simular(valor).map(s =>
     `${String(s.parc).padStart(2,'0')}x ${fmt(s.parcela).padStart(9,' ')} | ${fmt(s.total).padStart(9,' ')}`);
   const msg = `🏪 *${LOJA.toUpperCase()}*\n📱 *${lerProduto()}* 🤩\n\n💰 *Valor à vista: R$ ${fmt(valor)}*\n🏦 *${maquinas[maquinaAtual].nome}*\n\n💳 *Opções no cartão (R$):*\n\`\`\`\nPx.   Parcela |     Total\n-------------------------\n${linhas.join('\n')}\n\`\`\`\n\n${rodape}`;
-  copiar(msg, '✅ Copiado! Cole no WhatsApp');
+  copiar(msg, '✅ Copiado! Cole no WhatsApp', 'zap');
 }
 
 function copiarInsta() {
   const valor = lerValor();
-  if (!(valor > 0)) { mostrarToast('Digite um valor primeiro'); return; }
+  if (!(valor > 0)) { ruim('Digite um valor primeiro'); return; }
   const rodape = document.getElementById('rodape').value.trim();
   const linhas = simular(valor).map(s =>
     `${String(s.parc).padStart(2,'0')}x R$ ${fmt(s.parcela)} → total R$ ${fmt(s.total)}`);
   const msg = `🏪 ${LOJA}\n📱 ${lerProduto()}\n💰 R$ ${fmt(valor)} à vista — ${maquinas[maquinaAtual].nome}\n━━━━━━━━━━━━━━━\n${linhas.join('\n')}\n━━━━━━━━━━━━━━━\n${rodape}`;
-  copiar(msg, '📸 Copiado! Cole no Instagram');
+  copiar(msg, '📸 Copiado! Cole no Instagram', 'insta');
 }
 
 /* Copia pra área de transferência: API moderna primeiro; se falhar
    (iOS antigo / página sem HTTPS), cai no método antigo com textarea. */
-function copiar(msg, ok) {
+function copiar(msg, ok, rede) {
+  SOM.copiar(rede);   // toca já, dentro do toque (iPhone exige pra vibrar)
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(msg).then(() => mostrarToast(ok)).catch(() => fallback(msg, ok));
   } else { fallback(msg, ok); }
@@ -324,10 +501,11 @@ function fallback(msg, ok) {
   let deu = false;
   try { deu = document.execCommand('copy'); } catch (e) {}
   document.body.removeChild(ta);
-  mostrarToast(deu ? ok : 'Não deu pra copiar neste navegador');
+  if (deu) mostrarToast(ok); else ruim('Não deu pra copiar neste navegador');
 }
 
 function limpar() {
+  SOM.apagar(true);
   document.getElementById('valor').value = '';
   document.getElementById('produto').value = '';
   document.getElementById('calc-preview').style.display = 'none';
@@ -389,6 +567,7 @@ function aplicarCalculo() {
   const preview = document.getElementById('calc-preview');
   const val = parseFloat(preview.dataset.val);
   if (val > 0) {
+    SOM.usar();
     document.getElementById('valor').value = val.toFixed(2).replace('.', ',');
     document.getElementById('produto').value = '';
     preview.style.display = 'none';
@@ -406,19 +585,40 @@ setTimeout(() => {
   setTimeout(() => splash.remove(), 500);
 }, 500);
 
-document.getElementById('valor').addEventListener('input', calcular);
-document.getElementById('produto').addEventListener('input', detectarCalculo);
+/* Digitando o valor: sopro quando a tabela aparece/some, erro se digitar letra. */
+document.getElementById('valor').addEventListener('input', () => {
+  const el = document.getElementById('valor'), card = document.getElementById('card-captura');
+  const antesAberto = card.style.display === 'block', antesOk = !el.style.borderColor;
+  calcular();
+  const aberto = card.style.display === 'block', ok = !el.style.borderColor;
+  if (!ok && antesOk) SOM.erro();
+  else if (aberto && !antesAberto) SOM.abre();
+  else if (!aberto && antesAberto && ok) SOM.fecha();
+});
+/* Digitando conta no produto: bip quando aparece o resultado. */
+document.getElementById('produto').addEventListener('input', () => {
+  const prev = document.getElementById('calc-preview'), antes = prev.style.display === 'flex';
+  detectarCalculo();
+  if (!antes && prev.style.display === 'flex') SOM.bip();
+});
 document.getElementById('rodape').addEventListener('input', () => {
   try { localStorage.setItem('zicao-rodape', document.getElementById('rodape').value); } catch (e) {}
   calcular();
 });
+function limparProduto() {
+  SOM.apagar(false);
+  document.getElementById('produto').value = '';
+  detectarCalculo();
+}
 function limparRodape() {
+  SOM.apagar(false);
   document.getElementById('rodape').value = '';
   try { localStorage.setItem('zicao-rodape', ''); } catch (e) {}
   calcular();
 }
 
 trocarMaquina(maquinaAtual);
+SOM.pintar();
 
 /* Modo offline: o service worker guarda o app no celular (sw.js). */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
