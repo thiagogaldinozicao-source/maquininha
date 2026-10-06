@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.webmanifest?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root { --am: #FFE566; --verde: #25D366; --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a;
@@ -42,6 +42,11 @@ header p { font-size: 11px; color: #777; margin-top: 3px; }
 button:focus-visible { outline: 2px solid var(--am); outline-offset: 2px; }
 button { touch-action: manipulation; }
 
+.temas { display: flex; align-items: center; gap: 8px; margin: 12px 16px 0; }
+.temas-tit { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-right: 2px; white-space: nowrap; }
+.tema { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: #161616; border: 2px solid #2a2a2a; color: #aaa; font-family: inherit; font-size: 13px; font-weight: 700; padding: 8px 4px; border-radius: 20px; cursor: pointer; transition: border-color .2s, color .2s; }
+.tema i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,.25); }
+.tema.on { border-color: var(--am); color: #fff; }
 .ajustes { display: flex; justify-content: center; gap: 8px; margin: 26px 16px 0; }
 .chave { background: #161616; border: 1px solid #2a2a2a; color: #888; font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 20px; cursor: pointer; opacity: .5; transition: opacity .2s, color .2s; }
 .chave.on { color: #ddd; border-color: #3a3a3a; opacity: 1; }
@@ -198,6 +203,12 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
   <button class="btn btn-txt" onclick="copiarTexto()">💬 Copiar texto para WhatsApp</button>
   <button class="btn btn-insta" onclick="copiarInsta()">📸 Copiar texto para Instagram</button>
   <button class="btn btn-img" onclick="copiarImagem()">🖼️ Copiar como imagem</button>
+</div>
+<div class="temas">
+  <span class="temas-tit">Tema</span>
+  <button class="tema" data-tema="creme" onclick="escolherTema('creme')"><i style="background:#FFF1D2"></i>Creme</button>
+  <button class="tema" data-tema="grafite" onclick="escolherTema('grafite')"><i style="background:#34363D"></i>Grafite</button>
+  <button class="tema" data-tema="nevoa" onclick="escolherTema('nevoa')"><i style="background:#E3E8F1"></i>Névoa</button>
 </div>
 
 <div class="ajustes">
@@ -529,81 +540,97 @@ function carregarLogo() {
 function rgba(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
 function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 
+/* Modelos em tons pastéis, cantos bem arredondados (estilo iPhone) */
+const TEMAS = {
+  creme:   { bg: ['#FFF9EC', '#FFF1D2'], card: '#FFFFFF', row: '#FFF8EA', text: '#3B3428', muted: '#A39886', acc: '#FFE07A', accTxt: '#3B3428', chip: '#FFEFB0', chipTxt: '#8A6A00', badge: '#2F2B26', linha: 'rgba(59,52,40,.08)' },
+  grafite: { bg: ['#34363D', '#2A2C32'], card: '#3C3F47', row: '#444851', text: '#F6F2EA', muted: '#A9ABB2', acc: '#FFE38A', accTxt: '#2E2B22', chip: 'rgba(255,227,138,.18)', chipTxt: '#FFE38A', badge: null, linha: 'rgba(255,255,255,.08)' },
+  nevoa:   { bg: ['#F1F4F9', '#E3E8F1'], card: '#FFFFFF', row: '#F6F8FC', text: '#2C3140', muted: '#8C93A4', acc: '#FFE07A', accTxt: '#2C3140', chip: '#FFF2C2', chipTxt: '#8A6A00', badge: '#2C3140', linha: 'rgba(44,49,64,.08)' }
+};
+/* Tema da imagem escolhido (salvo no aparelho) */
+let temaImg = 'creme';
+try { const t = localStorage.getItem('zicao-tema'); if (t && TEMAS[t]) temaImg = t; } catch (e) {}
+function pintarTemas() { document.querySelectorAll('.tema').forEach(b => b.classList.toggle('on', b.dataset.tema === temaImg)); }
+function escolherTema(t) {
+  if (t !== temaImg) SOM.aba('pagbank');
+  temaImg = t; pintarTemas();
+  try { localStorage.setItem('zicao-tema', t); } catch (e) {}
+}
+pintarTemas();
+
 async function gerarImagem() {
-  const valor = lerValor(), lista = simular(valor), maq = maquinas[maquinaAtual], cor = maq.cor;
+  let T = TEMAS[temaImg] || TEMAS.creme;
+  /* No PicPay o destaque vira verde pastel em vez de amarelo */
+  if (maquinaAtual === 'picpay') T = Object.assign({}, T, { acc: '#A9E8C2', chip: T.badge ? '#DDF5E6' : 'rgba(169,232,194,.18)', chipTxt: T.badge ? '#1E7A45' : '#A9E8C2' });
+  const valor = lerValor(), lista = simular(valor);
   const nome = lerProduto(), temNome = nome !== 'PRODUTO';
   const rodape = document.getElementById('rodape').value.split('\n').map(l => l.trim()).filter(Boolean);
-  const BEBAS = '"Bebas Neue", Impact, sans-serif', DM = '"DM Sans", system-ui, -apple-system, sans-serif';
-  try { await Promise.all(['80px "Bebas Neue"', '700 30px "DM Sans"', '600 30px "DM Sans"'].map(f => document.fonts.load(f))); } catch (e) {}
+  const R = '"Nunito", ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif';
+  try { await Promise.all(['700 30px Nunito', '800 30px Nunito', '900 30px Nunito'].map(f => document.fonts.load(f))); } catch (e) {}
   const logo = await carregarLogo();
 
-  /* Mesmo jeitão do texto do WhatsApp (tabela Px | Parcela | Total), só que caprichado */
-  const MONO = '"SF Mono", ui-monospace, Menlo, Consolas, monospace';
-  const W = 1080, P = 72;
-  const cv = document.createElement('canvas'); cv.width = W; cv.height = 2800;
-  const c = cv.getContext('2d');
-  c.textBaseline = 'middle';
-  c.fillStyle = '#0b0b0b'; c.fillRect(0, 0, W, cv.height);
-  c.fillStyle = cor; c.fillRect(0, 0, W, 8);
-  const tw = W - 2 * P;
+  const W = 1080, P = 64, tw = W - 2 * P;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = 3000;
+  const c = cv.getContext('2d'); c.textBaseline = 'middle';
+  const g = c.createLinearGradient(0, 0, 0, cv.height); g.addColorStop(0, T.bg[0]); g.addColorStop(0.5, T.bg[1]); g.addColorStop(1, T.bg[1]);
+  c.fillStyle = g; c.fillRect(0, 0, W, cv.height);
+  const sombra = (on) => { c.shadowColor = on ? 'rgba(0,0,0,.10)' : 'transparent'; c.shadowBlur = on ? 30 : 0; c.shadowOffsetY = on ? 8 : 0; };
 
-  /* Topo: logo pequena + máquina */
-  let y = 64;
-  if (logo) { const lh = 60, lw = Math.round(lh * logo.width / logo.height); c.drawImage(logo, P, y, lw, lh); }
-  else { c.font = `46px ${BEBAS}`; c.fillStyle = cor; c.textAlign = 'left'; c.fillText(LOJA.toUpperCase(), P, y + 30); }
-  c.font = `700 22px ${DM}`; const mt = maq.nome.toUpperCase(), mw = c.measureText(mt).width + 40;
-  rr(c, W - P - mw, y + 10, mw, 40, 20); c.strokeStyle = rgba(cor, 0.6); c.lineWidth = 2; c.stroke();
-  c.textAlign = 'center'; c.fillStyle = cor; c.fillText(mt, W - P - mw / 2, y + 31);
-  y += 60 + 80;
-
-  /* Produto */
-  c.textAlign = 'left';
-  if (temNome) {
-    /* Nome do produto inteiro, igual ao texto copiado: quebra em linhas em vez de cortar */
-    const quebrar = () => {
-      const ls = []; let l = '';
-      nome.split(/\s+/).forEach(w => { const t = l ? l + ' ' + w : w; if (c.measureText(t).width > tw && l) { ls.push(l); l = w; } else l = t; });
-      if (l) ls.push(l); return ls;
-    };
-    let t = 72, linhas;
-    do { c.font = `${t}px ${BEBAS}`; linhas = quebrar(); t -= 4; }
-    while ((linhas.length > 3 || linhas.some(l => c.measureText(l).width > tw)) && t > 32);
-    const lh = (t + 4) * 1.05;
-    c.fillStyle = '#fff'; linhas.forEach((l, i) => c.fillText(l, P, y + i * lh));
-    y += (linhas.length - 1) * lh + 76;
+  /* Logo (num "ícone" escuro quando o fundo é claro, porque a logo tem letra branca) */
+  let y = 56;
+  if (logo) {
+    const lw = 330, lh = Math.round(lw * logo.height / logo.width);
+    if (T.badge) { const bw = lw + 80, bh = lh + 56; sombra(true); rr(c, (W - bw) / 2, y, bw, bh, 48); c.fillStyle = T.badge; c.fill(); sombra(false); c.drawImage(logo, (W - lw) / 2, y + 28, lw, lh); y += bh + 44; }
+    else { c.drawImage(logo, (W - lw) / 2, y, lw, lh); y += lh + 40; }
   }
 
-  /* Valor à vista */
-  c.font = `600 22px ${DM}`; c.fillStyle = '#7a7a7a'; c.fillText('VALOR À VISTA', P, y); y += 72;
-  c.font = `112px ${BEBAS}`; c.fillStyle = cor; c.fillText('R$ ' + fmt(valor), P - 3, y); y += 96;
+  /* Cartão: produto + à vista */
+  c.textAlign = 'center';
+  let linhas = [];
+  if (temNome) {
+    c.font = `800 44px ${R}`; let l = '';
+    nome.split(/\s+/).forEach(w => { const t = l ? l + ' ' + w : w; if (c.measureText(t).width > tw - 80 && l) { linhas.push(l); l = w; } else l = t; });
+    if (l) linhas.push(l); linhas = linhas.slice(0, 3);
+  }
+  const ch = 44 + linhas.length * 54 + (linhas.length ? 18 : 0) + 104 + 40;
+  sombra(true); rr(c, P, y, tw, ch, 44); c.fillStyle = T.card; c.fill(); sombra(false);
+  let cy = y + 44;
+  c.font = `800 44px ${R}`; c.fillStyle = T.text;
+  linhas.forEach(l => { c.fillText(l, W / 2, cy + 24); cy += 54; });
+  if (linhas.length) cy += 18;
+  const txtV = 'R$ ' + fmt(valor);
+  c.font = `900 58px ${R}`; const wv = c.measureText(txtV).width;
+  c.font = `800 22px ${R}`; const wl = c.measureText('À VISTA').width;
+  const pw = wv + wl + 96, ph = 104, px = (W - pw) / 2;
+  rr(c, px, cy, pw, ph, ph / 2); c.fillStyle = T.acc; c.fill();
+  c.textAlign = 'left'; c.globalAlpha = .6; c.fillStyle = T.accTxt; c.fillText('À VISTA', px + 40, cy + ph / 2 + 2); c.globalAlpha = 1;
+  c.font = `900 58px ${R}`; c.fillText(txtV, px + 40 + wl + 16, cy + ph / 2 + 3);
+  y += ch + 34;
 
-  /* Tabela no estilo do texto copiado */
-  c.font = `600 22px ${DM}`; c.fillStyle = '#7a7a7a'; c.fillText('OPÇÕES NO CARTÃO (R$)', P, y); y += 34;
-  const RH = 58, hh = 62, th = hh + lista.length * RH + 18;
-  rr(c, P, y, tw, th, 24); c.fillStyle = '#131313'; c.fill();
-  rr(c, P, y, tw, th, 24); c.strokeStyle = 'rgba(255,255,255,.07)'; c.lineWidth = 2; c.stroke();
-  const xPx = P + 36, xParc = P + tw * 0.56, xBar = P + tw * 0.63, xTot = P + tw - 36;
-  c.font = `600 24px ${MONO}`; c.fillStyle = '#6a6a6a';
-  c.textAlign = 'left'; c.fillText('Px.', xPx, y + hh / 2 + 4);
-  c.textAlign = 'right'; c.fillText('Parcela', xParc, y + hh / 2 + 4); c.fillText('Total', xTot, y + hh / 2 + 4);
-  c.textAlign = 'center'; c.fillStyle = '#3c3c3c'; c.fillText('|', xBar, y + hh / 2 + 4);
-  c.setLineDash([8, 8]); c.strokeStyle = rgba(cor, 0.45); c.lineWidth = 2;
-  c.beginPath(); c.moveTo(xPx, y + hh); c.lineTo(xTot, y + hh); c.stroke(); c.setLineDash([]);
+  c.textAlign = 'center'; c.font = `700 26px ${R}`; c.fillStyle = T.muted;
+  c.fillText(`ou parcelado no cartão em até ${lista.length}x`, W / 2, y); y += 40;
+
+  /* Tabela: linhas "gordinhas" separadas, tipo lista do iPhone */
+  const RH = 60, GAP = 8, hh = 56, ip = 18;
+  const th = hh + lista.length * (RH + GAP) + ip;
+  sombra(true); rr(c, P, y, tw, th, 40); c.fillStyle = T.card; c.fill(); sombra(false);
+  const xA = P + ip + 22, xV = P + tw * 0.62, xT = P + tw - ip - 26;
+  c.font = `800 19px ${R}`; c.fillStyle = T.muted;
+  c.textAlign = 'left'; c.fillText('PARCELAS', xA, y + hh / 2 + 6);
+  c.textAlign = 'right'; c.fillText('VALOR DA PARCELA', xV, y + hh / 2 + 6); c.fillText('TOTAL', xT, y + hh / 2 + 6);
   lista.forEach((s, i) => {
-    const my = y + hh + 9 + i * RH + RH / 2;
-    c.font = `700 34px ${MONO}`; c.textAlign = 'left'; c.fillStyle = cor;
-    c.fillText(String(s.parc).padStart(2, '0') + 'x', xPx, my);
-    c.textAlign = 'right'; c.fillStyle = '#fff'; c.fillText(fmt(s.parcela), xParc, my);
-    c.font = `400 30px ${MONO}`; c.textAlign = 'center'; c.fillStyle = '#3c3c3c'; c.fillText('|', xBar, my);
-    c.font = `500 30px ${MONO}`; c.textAlign = 'right'; c.fillStyle = '#8a8a8a'; c.fillText(fmt(s.total), xTot, my);
+    const ry = y + hh + i * (RH + GAP), my = ry + RH / 2;
+    rr(c, P + ip, ry, tw - 2 * ip, RH, 22); c.fillStyle = T.row; c.fill();
+    const sw = 76, sh = 40; rr(c, xA - 6, my - sh / 2, sw, sh, 20); c.fillStyle = T.chip; c.fill();
+    c.textAlign = 'center'; c.font = `900 24px ${R}`; c.fillStyle = T.chipTxt; c.fillText(s.parc + 'x', xA - 6 + sw / 2, my + 1);
+    c.textAlign = 'right'; c.font = `800 32px ${R}`; c.fillStyle = T.text; c.fillText('R$ ' + fmt(s.parcela), xV, my + 1);
+    c.font = `700 24px ${R}`; c.fillStyle = T.muted; c.fillText('R$ ' + fmt(s.total), xT, my + 1);
   });
-  y += th + 54;
+  y += th + 40;
 
   /* Rodapé editável */
-  c.textAlign = 'left'; c.font = `500 26px ${DM}`; c.fillStyle = '#b5b5b5';
-  rodape.forEach(l => { c.fillText(l, P, y); y += 44; });
-  y += rodape.length ? 34 : 10;
-  c.fillStyle = cor; c.fillRect(0, y, W, 8); y += 8;
+  c.textAlign = 'center'; c.font = `700 27px ${R}`; c.fillStyle = T.text; c.globalAlpha = .8;
+  rodape.forEach(l => { c.fillText(l, W / 2, y + 4); y += 44; }); c.globalAlpha = 1;
+  y += rodape.length ? 36 : 10;
 
   const out = document.createElement('canvas'); out.width = W; out.height = y;
   out.getContext('2d').drawImage(cv, 0, 0);
