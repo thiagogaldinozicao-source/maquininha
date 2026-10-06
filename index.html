@@ -559,8 +559,18 @@ async function gerarImagem() {
   /* Produto */
   c.textAlign = 'left';
   if (temNome) {
-    let t = 72; do { c.font = `${t}px ${BEBAS}`; t -= 4; } while (c.measureText(nome).width > tw && t > 36);
-    c.fillStyle = '#fff'; c.fillText(nome, P, y); y += 76;
+    /* Nome do produto inteiro, igual ao texto copiado: quebra em linhas em vez de cortar */
+    const quebrar = () => {
+      const ls = []; let l = '';
+      nome.split(/\s+/).forEach(w => { const t = l ? l + ' ' + w : w; if (c.measureText(t).width > tw && l) { ls.push(l); l = w; } else l = t; });
+      if (l) ls.push(l); return ls;
+    };
+    let t = 72, linhas;
+    do { c.font = `${t}px ${BEBAS}`; linhas = quebrar(); t -= 4; }
+    while ((linhas.length > 3 || linhas.some(l => c.measureText(l).width > tw)) && t > 32);
+    const lh = (t + 4) * 1.05;
+    c.fillStyle = '#fff'; linhas.forEach((l, i) => c.fillText(l, P, y + i * lh));
+    y += (linhas.length - 1) * lh + 76;
   }
 
   /* Valor à vista */
