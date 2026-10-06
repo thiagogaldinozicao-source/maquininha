@@ -537,73 +537,53 @@ async function gerarImagem() {
   try { await Promise.all(['80px "Bebas Neue"', '700 30px "DM Sans"', '600 30px "DM Sans"'].map(f => document.fonts.load(f))); } catch (e) {}
   const logo = await carregarLogo();
 
-  const W = 1080, P = 60, LH = 64;
-  const cv = document.createElement('canvas'); cv.width = W; cv.height = 3200;
+  /* Visual minimalista: logo pequena, preço em destaque e parcelas em 2 colunas */
+  const W = 1080, P = 72;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = 2600;
   const c = cv.getContext('2d');
   c.textBaseline = 'middle';
   c.fillStyle = '#0b0b0b'; c.fillRect(0, 0, W, cv.height);
-  const brilho = c.createRadialGradient(W / 2, 0, 40, W / 2, 0, 700);
-  brilho.addColorStop(0, rgba(cor, 0.16)); brilho.addColorStop(1, rgba(cor, 0));
-  c.fillStyle = brilho; c.fillRect(0, 0, W, 760);
-  c.fillStyle = cor; c.fillRect(0, 0, W, 10);
-  const tx = P, tw = W - 2 * P;
+  const tw = W - 2 * P;
 
-  /* Logo */
-  let y = 62;
-  if (logo) { const lw = 420, lh = Math.round(lw * logo.height / logo.width); c.drawImage(logo, (W - lw) / 2, y, lw, lh); y += lh + 40; }
-  else { c.font = `96px ${BEBAS}`; c.fillStyle = cor; c.textAlign = 'center'; c.fillText(LOJA.toUpperCase(), W / 2, y + 48); y += 130; }
+  /* Topo: logo pequena à esquerda, máquina à direita */
+  let y = 72;
+  if (logo) { const lh = 64, lw = Math.round(lh * logo.width / logo.height); c.drawImage(logo, P, y, lw, lh); }
+  else { c.font = `48px ${BEBAS}`; c.fillStyle = cor; c.textAlign = 'left'; c.fillText(LOJA.toUpperCase(), P, y + 32); }
+  c.textAlign = 'right'; c.font = `600 22px ${DM}`; c.fillStyle = '#666';
+  c.fillText('CARTÃO · ' + maq.nome.toUpperCase(), W - P, y + 32);
+  y += 64 + 84;
 
-  /* Produto */
-  c.textAlign = 'center';
+  /* Produto e preço à vista */
+  c.textAlign = 'left';
   if (temNome) {
-    let t = 84; do { c.font = `${t}px ${BEBAS}`; t -= 4; } while (c.measureText(nome).width > tw && t > 40);
-    c.fillStyle = '#fff'; c.fillText(nome, W / 2, y + 38); y += 100;
+    let t = 76; do { c.font = `${t}px ${BEBAS}`; t -= 4; } while (c.measureText(nome).width > tw && t > 36);
+    c.fillStyle = '#fff'; c.fillText(nome, P, y); y += 70;
   }
+  c.font = `600 22px ${DM}`; c.fillStyle = '#777'; c.fillText('À VISTA', P, y); y += 84;
+  c.font = `132px ${BEBAS}`; c.fillStyle = cor; c.fillText('R$ ' + fmt(valor), P - 4, y); y += 92;
+  c.font = `500 26px ${DM}`; c.fillStyle = '#8a8a8a';
+  c.fillText(`ou em até ${lista.length}x no cartão`, P, y); y += 56;
+  c.fillStyle = 'rgba(255,255,255,.10)'; c.fillRect(P, y, tw, 2); y += 22;
 
-  /* Valor à vista: cartão da largura da tabela */
-  const ch = 196;
-  c.shadowColor = rgba(cor, 0.30); c.shadowBlur = 50;
-  rr(c, tx, y, tw, ch, 30); c.fillStyle = cor; c.fill(); c.shadowBlur = 0;
-  c.font = `700 24px ${DM}`; c.fillStyle = 'rgba(17,17,17,.6)'; c.fillText('À VISTA', W / 2, y + 48);
-  c.font = `116px ${BEBAS}`; c.fillStyle = '#111'; c.fillText('R$ ' + fmt(valor), W / 2, y + 122);
-  y += ch + 46;
-
-  c.font = `600 28px ${DM}`; c.fillStyle = '#9a9a9a';
-  c.fillText(`ou em até ${lista.length}x no cartão · ${maq.nome}`, W / 2, y); y += 42;
-
-  /* Tabela */
-  const hh = 66, th = hh + lista.length * LH + 10;
-  const xParc = tx + 36, xValor = tx + tw * 0.66, xTotal = tx + tw - 36;
-  rr(c, tx, y, tw, th, 28); c.fillStyle = '#141414'; c.fill();
-  c.save(); rr(c, tx, y, tw, th, 28); c.clip();
-  c.font = `700 20px ${DM}`; c.fillStyle = '#777';
-  c.textAlign = 'left'; c.fillText('PARCELAS', xParc, y + hh / 2 + 2);
-  c.textAlign = 'right'; c.fillText('VALOR DA PARCELA', xValor, y + hh / 2 + 2); c.fillText('TOTAL', xTotal, y + hh / 2 + 2);
-  c.fillStyle = rgba(cor, 0.5); c.fillRect(tx + 28, y + hh - 2, tw - 56, 2);
+  /* Parcelas em 2 colunas: 1x–9x | 10x–18x */
+  const metade = Math.ceil(lista.length / 2), gap = 64, cw = (tw - gap) / 2, RH = 96;
   lista.forEach((s, i) => {
-    const ry = y + hh + i * LH, my = ry + LH / 2;
-    if (i) { c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(tx + 28, ry, tw - 56, 1); }
-    /* Selo com a quantidade de parcelas */
-    const sw = 84, sh = 42;
-    rr(c, xParc, my - sh / 2, sw, sh, 12); c.fillStyle = rgba(cor, 0.14); c.fill();
-    c.textAlign = 'center'; c.font = `700 26px ${DM}`; c.fillStyle = cor; c.fillText(s.parc + 'x', xParc + sw / 2, my + 1);
-    c.textAlign = 'right'; c.font = `700 36px ${DM}`; c.fillStyle = '#fff'; c.fillText('R$ ' + fmt(s.parcela), xValor, my + 1);
-    c.font = `500 26px ${DM}`; c.fillStyle = '#7c7c7c'; c.fillText('R$ ' + fmt(s.total), xTotal, my + 1);
+    const col = i < metade ? 0 : 1, lin = col ? i - metade : i;
+    const x = P + col * (cw + gap), ry = y + lin * RH;
+    if (lin) { c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(x, ry, cw, 1); }
+    c.textAlign = 'left'; c.font = `700 28px ${DM}`; c.fillStyle = cor; c.fillText(s.parc + 'x', x, ry + 40);
+    c.textAlign = 'right'; c.font = `700 34px ${DM}`; c.fillStyle = '#fff'; c.fillText('R$ ' + fmt(s.parcela), x + cw, ry + 38);
+    c.font = `500 19px ${DM}`; c.fillStyle = '#5f5f5f'; c.fillText('total R$ ' + fmt(s.total), x + cw, ry + 72);
   });
-  c.restore();
-  rr(c, tx, y, tw, th, 28); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.08)'; c.stroke();
-  y += th + 44;
+  c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(P + cw + gap / 2, y + 14, 1, metade * RH - 28);
+  y += metade * RH + 10;
+  c.fillStyle = 'rgba(255,255,255,.10)'; c.fillRect(P, y, tw, 2); y += 56;
 
   /* Rodapé editável */
-  c.textAlign = 'center'; c.font = `600 28px ${DM}`; c.fillStyle = '#cfcfcf';
-  rodape.forEach(l => { c.fillText(l, W / 2, y + 4); y += 46; });
-  y += rodape.length ? 26 : 0;
-
-  /* Faixa da loja */
-  const fh = 92;
-  c.fillStyle = cor; c.fillRect(0, y, W, fh);
-  c.fillStyle = '#111'; c.textAlign = 'center'; c.font = `46px ${BEBAS}`; c.fillText(LOJA.toUpperCase(), W / 2, y + fh / 2 + 3);
-  y += fh;
+  c.textAlign = 'left'; c.font = `500 24px ${DM}`; c.fillStyle = '#9a9a9a';
+  rodape.forEach(l => { c.fillText(l, P, y); y += 40; });
+  y += rodape.length ? 40 : 10;
+  c.fillStyle = cor; c.fillRect(0, y, W, 8); y += 8;
 
   const out = document.createElement('canvas'); out.width = W; out.height = y;
   out.getContext('2d').drawImage(cv, 0, 0);
