@@ -537,66 +537,73 @@ async function gerarImagem() {
   try { await Promise.all(['80px "Bebas Neue"', '700 30px "DM Sans"', '600 30px "DM Sans"'].map(f => document.fonts.load(f))); } catch (e) {}
   const logo = await carregarLogo();
 
-  const W = 1080, P = 56, LH = 66;
+  const W = 1080, P = 60, LH = 64;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = 3200;
   const c = cv.getContext('2d');
   c.textBaseline = 'middle';
-  c.fillStyle = '#0c0c0c'; c.fillRect(0, 0, W, cv.height);
-  const brilho = c.createRadialGradient(W / 2, 0, 40, W / 2, 0, 760);
-  brilho.addColorStop(0, rgba(cor, 0.20)); brilho.addColorStop(1, rgba(cor, 0));
-  c.fillStyle = brilho; c.fillRect(0, 0, W, 800);
-  c.fillStyle = cor; c.fillRect(0, 0, W, 12);
+  c.fillStyle = '#0b0b0b'; c.fillRect(0, 0, W, cv.height);
+  const brilho = c.createRadialGradient(W / 2, 0, 40, W / 2, 0, 700);
+  brilho.addColorStop(0, rgba(cor, 0.16)); brilho.addColorStop(1, rgba(cor, 0));
+  c.fillStyle = brilho; c.fillRect(0, 0, W, 760);
+  c.fillStyle = cor; c.fillRect(0, 0, W, 10);
+  const tx = P, tw = W - 2 * P;
 
-  let y = 70;
-  if (logo) { const lw = 560, lh = Math.round(lw * logo.height / logo.width); c.drawImage(logo, (W - lw) / 2, y, lw, lh); y += lh + 44; }
-  else { c.font = `110px ${BEBAS}`; c.fillStyle = cor; c.textAlign = 'center'; c.fillText(LOJA.toUpperCase(), W / 2, y + 55); y += 150; }
+  /* Logo */
+  let y = 62;
+  if (logo) { const lw = 420, lh = Math.round(lw * logo.height / logo.width); c.drawImage(logo, (W - lw) / 2, y, lw, lh); y += lh + 40; }
+  else { c.font = `96px ${BEBAS}`; c.fillStyle = cor; c.textAlign = 'center'; c.fillText(LOJA.toUpperCase(), W / 2, y + 48); y += 130; }
 
+  /* Produto */
   c.textAlign = 'center';
   if (temNome) {
-    let t = 100; do { c.font = `${t}px ${BEBAS}`; t -= 4; } while (c.measureText(nome).width > W - 2 * P && t > 40);
-    c.fillStyle = '#fff'; c.fillText(nome, W / 2, y + 44); y += 112;
+    let t = 84; do { c.font = `${t}px ${BEBAS}`; t -= 4; } while (c.measureText(nome).width > tw && t > 40);
+    c.fillStyle = '#fff'; c.fillText(nome, W / 2, y + 38); y += 100;
   }
 
-  /* Valor à vista em destaque */
-  const txtVista = 'R$ ' + fmt(valor);
-  c.font = `78px ${BEBAS}`; const wv = c.measureText(txtVista).width;
-  c.font = `700 24px ${DM}`; const wl = c.measureText('À VISTA').width;
-  const pw = wv + wl + 110, ph = 108, px = (W - pw) / 2;
-  c.shadowColor = rgba(cor, 0.35); c.shadowBlur = 40;
-  rr(c, px, y, pw, ph, ph / 2); c.fillStyle = cor; c.fill(); c.shadowBlur = 0;
-  c.textAlign = 'left'; c.fillStyle = 'rgba(17,17,17,.65)'; c.fillText('À VISTA', px + 44, y + ph / 2 + 1);
-  c.font = `78px ${BEBAS}`; c.fillStyle = '#111'; c.fillText(txtVista, px + 44 + wl + 22, y + ph / 2 + 4);
-  y += ph + 40;
+  /* Valor à vista: cartão da largura da tabela */
+  const ch = 196;
+  c.shadowColor = rgba(cor, 0.30); c.shadowBlur = 50;
+  rr(c, tx, y, tw, ch, 30); c.fillStyle = cor; c.fill(); c.shadowBlur = 0;
+  c.font = `700 24px ${DM}`; c.fillStyle = 'rgba(17,17,17,.6)'; c.fillText('À VISTA', W / 2, y + 48);
+  c.font = `116px ${BEBAS}`; c.fillStyle = '#111'; c.fillText('R$ ' + fmt(valor), W / 2, y + 122);
+  y += ch + 46;
 
-  c.textAlign = 'center'; c.font = `600 28px ${DM}`; c.fillStyle = '#9a9a9a';
-  c.fillText(`ou parcelado no cartão em até ${lista.length}x`, W / 2, y); y += 50;
+  c.font = `600 28px ${DM}`; c.fillStyle = '#9a9a9a';
+  c.fillText(`ou em até ${lista.length}x no cartão · ${maq.nome}`, W / 2, y); y += 42;
 
   /* Tabela */
-  const tx = P, tw = W - 2 * P, hh = 70, th = hh + lista.length * LH + 14;
-  const xParc = tx + 44, xValor = tx + tw * 0.60, xTotal = tx + tw - 44;
-  rr(c, tx, y, tw, th, 28); c.fillStyle = '#151515'; c.fill();
+  const hh = 66, th = hh + lista.length * LH + 10;
+  const xParc = tx + 36, xValor = tx + tw * 0.66, xTotal = tx + tw - 36;
+  rr(c, tx, y, tw, th, 28); c.fillStyle = '#141414'; c.fill();
   c.save(); rr(c, tx, y, tw, th, 28); c.clip();
-  c.fillStyle = rgba(cor, 0.13); c.fillRect(tx, y, tw, hh);
-  c.fillStyle = cor; c.fillRect(tx, y + hh - 3, tw, 3);
-  c.font = `700 22px ${DM}`; c.fillStyle = cor;
-  c.textAlign = 'left'; c.fillText('PARCELAS', xParc, y + hh / 2);
-  c.textAlign = 'right'; c.fillText('VALOR DA PARCELA', xValor, y + hh / 2); c.fillText('TOTAL', xTotal, y + hh / 2);
+  c.font = `700 20px ${DM}`; c.fillStyle = '#777';
+  c.textAlign = 'left'; c.fillText('PARCELAS', xParc, y + hh / 2 + 2);
+  c.textAlign = 'right'; c.fillText('VALOR DA PARCELA', xValor, y + hh / 2 + 2); c.fillText('TOTAL', xTotal, y + hh / 2 + 2);
+  c.fillStyle = rgba(cor, 0.5); c.fillRect(tx + 28, y + hh - 2, tw - 56, 2);
   lista.forEach((s, i) => {
     const ry = y + hh + i * LH, my = ry + LH / 2;
-    if (i % 2) { c.fillStyle = 'rgba(255,255,255,.035)'; c.fillRect(tx, ry, tw, LH); }
-    c.textAlign = 'left'; c.font = `48px ${BEBAS}`; c.fillStyle = cor; c.fillText(s.parc + 'x', xParc, my + 3);
-    c.textAlign = 'right'; c.font = `700 38px ${DM}`; c.fillStyle = '#fff'; c.fillText('R$ ' + fmt(s.parcela), xValor, my);
-    c.font = `600 27px ${DM}`; c.fillStyle = '#8c8c8c'; c.fillText('R$ ' + fmt(s.total), xTotal, my);
+    if (i) { c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(tx + 28, ry, tw - 56, 1); }
+    /* Selo com a quantidade de parcelas */
+    const sw = 84, sh = 42;
+    rr(c, xParc, my - sh / 2, sw, sh, 12); c.fillStyle = rgba(cor, 0.14); c.fill();
+    c.textAlign = 'center'; c.font = `700 26px ${DM}`; c.fillStyle = cor; c.fillText(s.parc + 'x', xParc + sw / 2, my + 1);
+    c.textAlign = 'right'; c.font = `700 36px ${DM}`; c.fillStyle = '#fff'; c.fillText('R$ ' + fmt(s.parcela), xValor, my + 1);
+    c.font = `500 26px ${DM}`; c.fillStyle = '#7c7c7c'; c.fillText('R$ ' + fmt(s.total), xTotal, my + 1);
   });
   c.restore();
-  rr(c, tx, y, tw, th, 28); c.lineWidth = 2; c.strokeStyle = rgba(cor, 0.45); c.stroke();
+  rr(c, tx, y, tw, th, 28); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.08)'; c.stroke();
   y += th + 44;
 
-  /* Rodapé */
-  c.textAlign = 'center'; c.font = `600 30px ${DM}`; c.fillStyle = '#d6d6d6';
-  rodape.forEach(l => { c.fillText(l, W / 2, y + 4); y += 48; });
-  y += rodape.length ? 30 : 10;
-  c.fillStyle = cor; c.fillRect(0, y, W, 12); y += 12;
+  /* Rodapé editável */
+  c.textAlign = 'center'; c.font = `600 28px ${DM}`; c.fillStyle = '#cfcfcf';
+  rodape.forEach(l => { c.fillText(l, W / 2, y + 4); y += 46; });
+  y += rodape.length ? 26 : 0;
+
+  /* Faixa da loja */
+  const fh = 92;
+  c.fillStyle = cor; c.fillRect(0, y, W, fh);
+  c.fillStyle = '#111'; c.textAlign = 'center'; c.font = `46px ${BEBAS}`; c.fillText(LOJA.toUpperCase(), W / 2, y + fh / 2 + 3);
+  y += fh;
 
   const out = document.createElement('canvas'); out.width = W; out.height = y;
   out.getContext('2d').drawImage(cv, 0, 0);
