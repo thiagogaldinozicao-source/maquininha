@@ -79,6 +79,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
 .btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 12px; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 20px; letter-spacing: 2px; padding: 15px; width: 100%; cursor: pointer; transition: transform 0.15s; }
 .btn:active { transform: scale(0.97); }
 .btn-txt { background: var(--verde); color: #fff; }
+.btn-img { background: var(--am); color: #111; transition: transform 0.15s, background 0.3s; }
 .btn-insta { background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #fff; }
 
 .toast { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(80px); background: var(--am); color: #111; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 50px; opacity: 0; transition: all 0.3s ease; z-index: 999; white-space: nowrap; }
@@ -193,6 +194,7 @@ tbody td:first-child { text-align: left; padding-left: 14px; font-family: ui-mon
 <div class="btns" id="btns">
   <button class="btn btn-txt" onclick="copiarTexto()">💬 Copiar texto para WhatsApp</button>
   <button class="btn btn-insta" onclick="copiarInsta()">📸 Copiar texto para Instagram</button>
+  <button class="btn btn-img" onclick="copiarImagem()">🖼️ Copiar como imagem</button>
 </div>
 
 <div class="ajustes">
@@ -344,6 +346,15 @@ const SOM = (() => {
     nota(vibOn ? 800 : 1200, 0, 0.06, { f2: vibOn ? 1200 : 800, tipo: 'triangle', vol: 0.5 });
     if (vibOn) vibrar(15);
     salvar();
+  };
+  /* Copiar imagem: obturador de câmera. */
+  S.foto = () => {
+    marca();
+    sopro(5000, 2600, 0.05, 0.35);
+    nota(1400, 0, 0.02, { tipo: 'square', vol: 0.12 });
+    sopro(3600, 1900, 0.08, 0.3, 0.09);
+    nota(2093, 0.2, 0.22, { vol: 0.4 });
+    vibrar(14);
   };
   S.pintar = pintar;
 
@@ -499,6 +510,118 @@ function fallback(msg, ok) {
   try { deu = document.execCommand('copy'); } catch (e) {}
   document.body.removeChild(ta);
   if (deu) mostrarToast(ok); else ruim('Não deu pra copiar neste navegador');
+}
+
+/* =====================================================================
+   IMAGEM PRA MANDAR PRO CLIENTE
+   Desenha um cartão 1080px no canvas (sem biblioteca, funciona offline):
+   logo, produto, valor à vista, tabela 1x–18x e rodapé. Copia a imagem;
+   se o navegador não deixar, abre o compartilhar do iPhone ou baixa.
+   ===================================================================== */
+let logoProm = null;
+function carregarLogo() {
+  if (!logoProm) logoProm = new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = 'logo.png?v=1'; });
+  return logoProm;
+}
+function rgba(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
+function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+
+async function gerarImagem() {
+  const valor = lerValor(), lista = simular(valor), maq = maquinas[maquinaAtual], cor = maq.cor;
+  const nome = lerProduto(), temNome = nome !== 'PRODUTO';
+  const rodape = document.getElementById('rodape').value.split('\n').map(l => l.trim()).filter(Boolean);
+  const BEBAS = '"Bebas Neue", Impact, sans-serif', DM = '"DM Sans", system-ui, -apple-system, sans-serif';
+  try { await Promise.all(['80px "Bebas Neue"', '700 30px "DM Sans"', '600 30px "DM Sans"'].map(f => document.fonts.load(f))); } catch (e) {}
+  const logo = await carregarLogo();
+
+  const W = 1080, P = 56, LH = 66;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = 3200;
+  const c = cv.getContext('2d');
+  c.textBaseline = 'middle';
+  c.fillStyle = '#0c0c0c'; c.fillRect(0, 0, W, cv.height);
+  const brilho = c.createRadialGradient(W / 2, 0, 40, W / 2, 0, 760);
+  brilho.addColorStop(0, rgba(cor, 0.20)); brilho.addColorStop(1, rgba(cor, 0));
+  c.fillStyle = brilho; c.fillRect(0, 0, W, 800);
+  c.fillStyle = cor; c.fillRect(0, 0, W, 12);
+
+  let y = 70;
+  if (logo) { const lw = 560, lh = Math.round(lw * logo.height / logo.width); c.drawImage(logo, (W - lw) / 2, y, lw, lh); y += lh + 44; }
+  else { c.font = `110px ${BEBAS}`; c.fillStyle = cor; c.textAlign = 'center'; c.fillText(LOJA.toUpperCase(), W / 2, y + 55); y += 150; }
+
+  c.textAlign = 'center';
+  if (temNome) {
+    let t = 100; do { c.font = `${t}px ${BEBAS}`; t -= 4; } while (c.measureText(nome).width > W - 2 * P && t > 40);
+    c.fillStyle = '#fff'; c.fillText(nome, W / 2, y + 44); y += 112;
+  }
+
+  /* Valor à vista em destaque */
+  const txtVista = 'R$ ' + fmt(valor);
+  c.font = `78px ${BEBAS}`; const wv = c.measureText(txtVista).width;
+  c.font = `700 24px ${DM}`; const wl = c.measureText('À VISTA').width;
+  const pw = wv + wl + 110, ph = 108, px = (W - pw) / 2;
+  c.shadowColor = rgba(cor, 0.35); c.shadowBlur = 40;
+  rr(c, px, y, pw, ph, ph / 2); c.fillStyle = cor; c.fill(); c.shadowBlur = 0;
+  c.textAlign = 'left'; c.fillStyle = 'rgba(17,17,17,.65)'; c.fillText('À VISTA', px + 44, y + ph / 2 + 1);
+  c.font = `78px ${BEBAS}`; c.fillStyle = '#111'; c.fillText(txtVista, px + 44 + wl + 22, y + ph / 2 + 4);
+  y += ph + 40;
+
+  c.textAlign = 'center'; c.font = `600 28px ${DM}`; c.fillStyle = '#9a9a9a';
+  c.fillText(`ou parcelado no cartão em até ${lista.length}x`, W / 2, y); y += 50;
+
+  /* Tabela */
+  const tx = P, tw = W - 2 * P, hh = 70, th = hh + lista.length * LH + 14;
+  const xParc = tx + 44, xValor = tx + tw * 0.60, xTotal = tx + tw - 44;
+  rr(c, tx, y, tw, th, 28); c.fillStyle = '#151515'; c.fill();
+  c.save(); rr(c, tx, y, tw, th, 28); c.clip();
+  c.fillStyle = rgba(cor, 0.13); c.fillRect(tx, y, tw, hh);
+  c.fillStyle = cor; c.fillRect(tx, y + hh - 3, tw, 3);
+  c.font = `700 22px ${DM}`; c.fillStyle = cor;
+  c.textAlign = 'left'; c.fillText('PARCELAS', xParc, y + hh / 2);
+  c.textAlign = 'right'; c.fillText('VALOR DA PARCELA', xValor, y + hh / 2); c.fillText('TOTAL', xTotal, y + hh / 2);
+  lista.forEach((s, i) => {
+    const ry = y + hh + i * LH, my = ry + LH / 2;
+    if (i % 2) { c.fillStyle = 'rgba(255,255,255,.035)'; c.fillRect(tx, ry, tw, LH); }
+    c.textAlign = 'left'; c.font = `48px ${BEBAS}`; c.fillStyle = cor; c.fillText(s.parc + 'x', xParc, my + 3);
+    c.textAlign = 'right'; c.font = `700 38px ${DM}`; c.fillStyle = '#fff'; c.fillText('R$ ' + fmt(s.parcela), xValor, my);
+    c.font = `600 27px ${DM}`; c.fillStyle = '#8c8c8c'; c.fillText('R$ ' + fmt(s.total), xTotal, my);
+  });
+  c.restore();
+  rr(c, tx, y, tw, th, 28); c.lineWidth = 2; c.strokeStyle = rgba(cor, 0.45); c.stroke();
+  y += th + 44;
+
+  /* Rodapé */
+  c.textAlign = 'center'; c.font = `600 30px ${DM}`; c.fillStyle = '#d6d6d6';
+  rodape.forEach(l => { c.fillText(l, W / 2, y + 4); y += 48; });
+  y += rodape.length ? 30 : 10;
+  c.fillStyle = cor; c.fillRect(0, y, W, 12); y += 12;
+
+  const out = document.createElement('canvas'); out.width = W; out.height = y;
+  out.getContext('2d').drawImage(cv, 0, 0);
+  return new Promise((res, rej) => out.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
+}
+
+function copiarImagem() {
+  if (!(lerValor() > 0)) { ruim('Digite um valor primeiro'); return; }
+  SOM.foto();
+  const blobProm = gerarImagem();
+  /* No iPhone a cópia tem que começar dentro do toque: por isso a promessa
+     vai direto pro ClipboardItem, sem await antes. */
+  if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': blobProm })])
+      .then(() => mostrarToast('🖼️ Imagem copiada! Cole no WhatsApp'))
+      .catch(() => compartilharImagem(blobProm));
+  } else compartilharImagem(blobProm);
+}
+async function compartilharImagem(blobProm) {
+  let blob; try { blob = await blobProm; } catch (e) { ruim('Não deu pra gerar a imagem'); return; }
+  const arq = new File([blob], 'zicao-parcelas.png', { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [arq] })) {
+    try { await navigator.share({ files: [arq] }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = arq.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  mostrarToast('🖼️ Imagem salva');
 }
 
 function limpar() {
