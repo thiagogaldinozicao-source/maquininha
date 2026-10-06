@@ -2,7 +2,7 @@
    - HTML: tenta a rede primeiro (pega atualização) e cai no cache se estiver offline.
    - Ícones, manifest e fontes: usa o cache e atualiza em segundo plano.
    Ao mudar arquivos do app, aumente VERSAO pra limpar o cache antigo. */
-const VERSAO = 'zicao-v6';
+const VERSAO = 'zicao-v7';
 const ARQUIVOS = ['./', 'index.html', 'manifest.webmanifest?v=2', 'favicon.svg?v=2',
   'icons/apple-touch-icon.png?v=2', 'icons/icon-192.png?v=2', 'icons/icon-512.png?v=2', 'logo.png?v=1'];
 
