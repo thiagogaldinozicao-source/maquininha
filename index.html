@@ -542,9 +542,9 @@ function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w
 
 /* Modelos em tons pastéis, cantos bem arredondados (estilo iPhone) */
 const TEMAS = {
-  creme:   { bg: ['#FFF9EC', '#FFF1D2'], card: '#FFFFFF', row: '#FFF8EA', text: '#3B3428', muted: '#A39886', acc: '#FFE07A', accTxt: '#3B3428', chip: '#FFEFB0', chipTxt: '#8A6A00', badge: '#2F2B26', linha: 'rgba(59,52,40,.08)' },
-  grafite: { bg: ['#34363D', '#2A2C32'], card: '#3C3F47', row: '#444851', text: '#F6F2EA', muted: '#A9ABB2', acc: '#FFE38A', accTxt: '#2E2B22', chip: 'rgba(255,227,138,.18)', chipTxt: '#FFE38A', badge: null, linha: 'rgba(255,255,255,.08)' },
-  nevoa:   { bg: ['#F1F4F9', '#E3E8F1'], card: '#FFFFFF', row: '#F6F8FC', text: '#2C3140', muted: '#8C93A4', acc: '#FFE07A', accTxt: '#2C3140', chip: '#FFF2C2', chipTxt: '#8A6A00', badge: '#2C3140', linha: 'rgba(44,49,64,.08)' }
+  creme:   { bg: ['#FFF9EC', '#FFF1D2'], card: '#FFFFFF', row: '#FFF8EA', text: '#3B3428', muted: '#A39886', acc: '#FFE07A', accTxt: '#3B3428', chip: '#FFEFB0', chipTxt: '#8A6A00', tit: '#C29200', badge: '#2F2B26', linha: 'rgba(59,52,40,.08)' },
+  grafite: { bg: ['#34363D', '#2A2C32'], card: '#3C3F47', row: '#444851', text: '#F6F2EA', muted: '#A9ABB2', acc: '#FFE38A', accTxt: '#2E2B22', chip: 'rgba(255,227,138,.18)', chipTxt: '#FFE38A', tit: '#FFE38A', badge: null, linha: 'rgba(255,255,255,.08)' },
+  nevoa:   { bg: ['#F1F4F9', '#E3E8F1'], card: '#FFFFFF', row: '#F6F8FC', text: '#2C3140', muted: '#8C93A4', acc: '#FFE07A', accTxt: '#2C3140', chip: '#FFF2C2', chipTxt: '#8A6A00', tit: '#C29200', badge: '#2C3140', linha: 'rgba(44,49,64,.08)' }
 };
 /* Tema da imagem escolhido (salvo no aparelho) */
 let temaImg = 'creme';
@@ -560,7 +560,7 @@ pintarTemas();
 async function gerarImagem() {
   let T = TEMAS[temaImg] || TEMAS.creme;
   /* No PicPay o destaque vira verde pastel em vez de amarelo */
-  if (maquinaAtual === 'picpay') T = Object.assign({}, T, { acc: '#A9E8C2', chip: T.badge ? '#DDF5E6' : 'rgba(169,232,194,.18)', chipTxt: T.badge ? '#1E7A45' : '#A9E8C2' });
+  if (maquinaAtual === 'picpay') T = Object.assign({}, T, { acc: '#A9E8C2', chip: T.badge ? '#DDF5E6' : 'rgba(169,232,194,.18)', chipTxt: T.badge ? '#1E7A45' : '#A9E8C2', tit: T.badge ? '#1E9A55' : '#A9E8C2' });
   const valor = lerValor(), lista = simular(valor);
   const nome = lerProduto(), temNome = nome !== 'PRODUTO';
   const rodape = document.getElementById('rodape').value.split('\n').map(l => l.trim()).filter(Boolean);
@@ -576,26 +576,28 @@ async function gerarImagem() {
   const sombra = (on) => { c.shadowColor = on ? 'rgba(0,0,0,.10)' : 'transparent'; c.shadowBlur = on ? 30 : 0; c.shadowOffsetY = on ? 8 : 0; };
 
   /* Logo (num "ícone" escuro quando o fundo é claro, porque a logo tem letra branca) */
-  let y = 56;
+  /* Logo pequena no cantinho (esquerda) */
+  let y = 48;
   if (logo) {
-    const lw = 330, lh = Math.round(lw * logo.height / logo.width);
-    if (T.badge) { const bw = lw + 80, bh = lh + 56; sombra(true); rr(c, (W - bw) / 2, y, bw, bh, 48); c.fillStyle = T.badge; c.fill(); sombra(false); c.drawImage(logo, (W - lw) / 2, y + 28, lw, lh); y += bh + 44; }
-    else { c.drawImage(logo, (W - lw) / 2, y, lw, lh); y += lh + 40; }
+    const lw = 190, lh = Math.round(lw * logo.height / logo.width);
+    if (T.badge) { const bw = lw + 44, bh = lh + 32; sombra(true); rr(c, P, y, bw, bh, 28); c.fillStyle = T.badge; c.fill(); sombra(false); c.drawImage(logo, P + 22, y + 16, lw, lh); y += bh + 32; }
+    else { c.drawImage(logo, P, y, lw, lh); y += lh + 36; }
   }
 
   /* Cartão: produto + à vista */
   c.textAlign = 'center';
   let linhas = [];
   if (temNome) {
-    c.font = `800 44px ${R}`; let l = '';
+    c.font = `900 50px ${R}`; let l = '';
     nome.split(/\s+/).forEach(w => { const t = l ? l + ' ' + w : w; if (c.measureText(t).width > tw - 80 && l) { linhas.push(l); l = w; } else l = t; });
     if (l) linhas.push(l); linhas = linhas.slice(0, 3);
   }
-  const ch = 44 + linhas.length * 54 + (linhas.length ? 18 : 0) + 104 + 40;
+  const ch = 44 + linhas.length * 60 + (linhas.length ? 18 : 0) + 104 + 40;
   sombra(true); rr(c, P, y, tw, ch, 44); c.fillStyle = T.card; c.fill(); sombra(false);
   let cy = y + 44;
-  c.font = `800 44px ${R}`; c.fillStyle = T.text;
-  linhas.forEach(l => { c.fillText(l, W / 2, cy + 24); cy += 54; });
+  /* Título no mesmo estilo do valor: negrito e colorido */
+  c.font = `900 50px ${R}`; c.fillStyle = T.tit;
+  linhas.forEach(l => { c.fillText(l, W / 2, cy + 28); cy += 60; });
   if (linhas.length) cy += 18;
   const txtV = 'R$ ' + fmt(valor);
   c.font = `900 58px ${R}`; const wv = c.measureText(txtV).width;
