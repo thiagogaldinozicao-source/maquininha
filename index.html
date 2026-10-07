@@ -589,16 +589,22 @@ async function gerarImagem() {
   let linhas = [];
   if (temNome) {
     c.font = `900 50px ${R}`; let l = '';
-    nome.split(/\s+/).forEach(w => { const t = l ? l + ' ' + w : w; if (c.measureText(t).width > tw - 80 && l) { linhas.push(l); l = w; } else l = t; });
+    nome.split(/\s+/).forEach(w => { const t = l ? l + ' ' + w : w; if (c.measureText(t).width > tw - 160 && l) { linhas.push(l); l = w; } else l = t; });
     if (l) linhas.push(l); linhas = linhas.slice(0, 3);
   }
-  const ch = 44 + linhas.length * 60 + (linhas.length ? 18 : 0) + 104 + 40;
+  const ch = 44 + (linhas.length ? linhas.length * 60 + 44 + 22 : 0) + 104 + 40;
   sombra(true); rr(c, P, y, tw, ch, 44); c.fillStyle = T.card; c.fill(); sombra(false);
   let cy = y + 44;
   /* Título no mesmo estilo do valor: negrito e colorido */
-  c.font = `900 50px ${R}`; c.fillStyle = T.tit;
-  linhas.forEach(l => { c.fillText(l, W / 2, cy + 28); cy += 60; });
-  if (linhas.length) cy += 18;
+  /* Título preenchido igual ao valor: pílula branca no Grafite, colorida nos temas claros */
+  if (linhas.length) {
+    c.font = `900 50px ${R}`;
+    const nw = Math.max(...linhas.map(l => c.measureText(l).width)) + 96, nh = linhas.length * 60 + 44;
+    rr(c, (W - nw) / 2, cy, nw, nh, Math.min(nh / 2, 52)); c.fillStyle = T.badge ? T.acc : '#FFFFFF'; c.fill();
+    c.fillStyle = T.accTxt;
+    linhas.forEach((l, i) => c.fillText(l, W / 2, cy + 22 + 30 + i * 60 + 2));
+    cy += nh + 22;
+  }
   const txtV = 'R$ ' + fmt(valor);
   c.font = `900 58px ${R}`; const wv = c.measureText(txtV).width;
   c.font = `800 22px ${R}`; const wl = c.measureText('À VISTA').width;
